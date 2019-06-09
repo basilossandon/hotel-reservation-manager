@@ -1,59 +1,103 @@
 <template>
-      <el-card class="box-card">
-          <div slot="header" class="clearfix">
-              <el-row>
-                  <el-col></el-col>
-                  <el-col :span="12">
-                      <el-alert v-if="showButton"
-                        :title="dataAlert"
-                        type="success">
-                        </el-alert>
-                  </el-col>
-              </el-row>
-          </div>
-          <div>
-              <el-form ref="form" label-position="left" :model="form" label-width="120px">
-                  <el-row>
-                      <el-col :span="11">
-                        <el-form-item label="Nombre">
-                            <el-input placeholder="Ingrese nombre cliente" v-model="form.checkInName"></el-input>
-                        </el-form-item>
-
-                        <el-form-item label="Nª Documento">
-                            <el-input placeholder="Ingrese número documento" v-model="form.documentNumber"></el-input>
-                        </el-form-item>
-                      </el-col>
-                      <el-col :span="13">
-                        <el-form-item label="Fechas">
-                            <el-date-picker
-                            v-model="form.date"
-                            type="daterange"
-                            range-separator="-"
-                            start-placeholder="Inicio"
-                            end-placeholder="Término"
-                            >
-                            </el-date-picker>
-                        </el-form-item>
-
-                        <el-form-item label="Habitación">
-                            <el-select v-model="form.roomId" placeholder="Seleccione habitación">
-                                <el-option
-                                v-for="item in rackRooms"
-                                :key="item.id"
-                                :label="item.id"
-                                :value="item.id">
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-row>
-                            <el-button type="primary" plain size="small" @click="addRoom()">Añadir Habitación</el-button>
-                            <el-button v-if="showButton" type="success" size="small" @click="postReservation()">Reservar</el-button>
-                        </el-row>
-                      </el-col>
-                  </el-row>
-              </el-form>
+<el-row :gutter="20">
+      <el-col :span="18">
+        <el-card class="box-card reservations-form">
+            <div slot="header" class="clearfix reservations-form__title">
+                  Formulario de reservación
             </div>
-      </el-card>
+            <el-main>
+                <el-form ref="form" label-position="left" label-width="120px">
+                    <el-row :gutter="40">
+                        <el-col :span="12">
+                            <div class="form-title">
+                                Datos del cliente
+                            </div>
+                            <el-form-item label="Nombre">
+                                <el-input v-model="checkInName"></el-input>
+                            </el-form-item>
+                            <el-form-item label="Nª Documento">
+                                <el-input v-model="documentNumber"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <div class="form-title">
+                                Duración y habitación
+                            </div>
+                            <el-form-item label="Inicio">
+                                    <el-date-picker
+                                    id="startPicker"
+                                    v-model="start"
+                                    :editable="false"
+                                    type="date"
+                                    format="MM/dd/yyyy"
+                                    :picker-options="startPickerOptions">
+                                    </el-date-picker>
+                            </el-form-item>
+                            <el-form-item label="Término">
+                                <el-date-picker
+                                    v-model="end"
+                                    :editable="false"
+                                    type="date"
+                                    format="MM/dd/yyyy"
+                                    :disabled="start == null"
+                                    :picker-options="endPickerOptions">
+                                </el-date-picker>
+                            </el-form-item>
+                            <el-form-item label="Habitación">
+                                <el-select v-model="roomId" :disabled="end == null">
+                                    <el-option
+                                    v-for="room in availableRooms"
+                                    :key="room"
+                                    :label="room"
+                                    :value="room">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <!-- <el-button type="primary" plain size="small" @click="addRoom()">Añadir Habitación</el-button>
+                            <el-button v-if="showButton" type="success" size="small" @click="postReservation()">Reservar</el-button> -->
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </el-main>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+          <el-row>
+            <el-card class="box-card reservations-table">
+                <div slot="header" class="clearfix reservations-table__title">
+                    Últimas reservaciones
+                </div>
+                <el-table
+                    v-loading="!rackReady"
+                    :data="rackReservations"
+                    style="width: 100%"
+                    height="300">
+                    <el-table-column
+                    fixed
+                    prop="code"
+                    label="Código"
+                    width="140">
+                    </el-table-column>
+                    <el-table-column
+                    prop="checkin_name"
+                    label="Cliente"
+                    width="150">
+                    </el-table-column>
+                    <!-- <el-table-column
+                    prop="start"
+                    label="Inicio"
+                    width="120">
+                    </el-table-column>
+                    <el-table-column
+                    prop="end"
+                    label="Término"
+                    width="120">
+                    </el-table-column> -->
+                </el-table>
+            </el-card>
+          </el-row>
+      </el-col>
+    </el-row>
 </template>
 
 <script>
@@ -61,36 +105,88 @@ import axios from 'axios'
 import moment from 'moment'
 import "moment/locale/es"
 
+function isBusy(day, reservations) {
+    reservations.forEach(reservation => {
+        if (reservation.start == day || reservation.end == day) {
+            return true;
+        }
+    });
+    return false;   
+}
+
 export default {
-    props: ['rackRooms', 'rackReservations'],
+    props: ['rackRooms', 'rackReservations', 'rackReady', 'rackDictionary'],
     data() {
         return {
-            form: {
-                id: '',
-                date: [],
-                finalPrice: 0,
-                documentNumber: '',
-                checkInName: '',
-                code: '',
-                roomId: null
-            },
+            start: null,
+            end: null,
+            finalPrice: 0,
+            documentNumber: '',
+            checkInName: '',
+            roomId: null,
             date: '',
-            value: '',
+            availableRooms: [],
             postRooms: [],
             postDates: [],
             showButton: false,
-            dataAlert: "Habitaciones a reservar:" ,
-            load: true
+            dataAlert: "Habitaciones a reservar: ",
+            startPickerOptions: {
+                disabledDate(time) {
+                    const date  = moment(time.getTime());
+                    const today = moment(Date.now()).add(-1, 'day');
+                    return date < today;
+                }
+            },
+            endPickerOptions: {
+                disabledDate(time) {
+                    var date = new Date(time.getTime());
+                    var start = new Date(document.getElementById('startPicker').value);
+                    const dateSelected = moment(date);
+                    const dateLimit = moment(start);
+                    return dateSelected < dateLimit;
+                }
+            }
+        }
+    },
+    watch: {
+        start: function (value) {
+            if (value == null) {
+                this.end = null;
+                this.availableRooms = [];
+            }
+        },
+        end: function (value) {
+            if (value != null) {
+                this.availableRooms = [];
+                this.rackRooms.forEach(room => {
+                    let start = false;
+                    let end = false;
+                    try {
+                        start = this.rackDictionary[room.id][this.format(this.start)];
+                    } catch (error) {
+                        start = false;
+                    }
+
+                    try {
+                        end = this.rackDictionary[room.id][this.format(this.end)];
+                    } catch (error) {
+                        end = false;
+                    }
+                    if (!start && !end) {
+                        this.availableRooms.push(room.id);
+                    }
+                });
+            }
         }
     },
     methods: {
         addRoom() {
             this.showButton = true;
-            this.postRooms.push(this.form.roomId);
-            this.postDates.push(this.form.date);
-            this.dataAlert += (" " + this.form.roomId + ",");
-            this.form.roomId = null;
-            this.form.date = [];
+            this.postRooms.push(this.roomId);
+            this.postDates.push(this.date);
+            this.dataAlert += (" " + this.roomId + ",");
+            this.roomId = null;
+            this.date = [];
         },
         postReservation() {
             var code = makeid(10);
@@ -104,9 +200,9 @@ export default {
                         start: start,
                         end: end,
                         finalPrice: this.finalPrice,
-                        checkInName: this.form.checkInName,
+                        checkInName: this.checkInName,
                         lastName: this.lastName,
-                        documentNumber: this.form.documentNumber,
+                        documentNumber: this.documentNumber,
                         code: code,
                         roomId: this.postRooms[i],
                     },
@@ -140,14 +236,6 @@ export default {
             }
         },
 
-        open() {
-            const h = this.$createElement
-
-            this.$notify({
-                title: 'Reserva realizada',
-                message: h('i', { style: 'color: cyan' }, 'This is a reminder'),
-            })
-        },
         post() {
             let today = moment();
             let tomorrow = today.clone().add(1, 'day');
@@ -181,7 +269,18 @@ export default {
                 title: "Error",
                 message: "There was an error trying to create the reservation"
             }));
-        }
+        },
+        format(date){
+            return moment(date).format("ddd DD MMMM");
+        },
+        isInReservations(day) {
+            this.rackReservations.forEach(reservation => {
+                if (reservation.start == day || reservation.end == day) {
+                    return true;
+                }
+            });
+            return false;
+        },
     },
 }
 
@@ -199,19 +298,26 @@ function makeid(length) {
 </script>
 
 <style>
-.box-card {
-    text-align: left;
-    height: 18em;
-}
-/* .box-card > .el-card__body {
-    padding: 0px;
-    height: 100%;
-} */
-.el-card__header {
-    padding: 0px !important;
-}
 .el-notification,
 .right {
   font-family: "Avenir", Helvetica, Arial, sans-serif !important;
+}
+.reservations-table, .reservations-form{
+    height: 47.3vh;
+}
+.reservations-table > .el-card__body {
+    padding-top: 0px; 
+}
+.reservations-form > .el-card__body {
+    padding-top: 0px; 
+}
+.el-table__empty-text {
+    display: none;
+}
+.form-title {
+    margin-bottom: 2vh;
+}
+.el-input__inner {
+    width: 220px;
 }
 </style>

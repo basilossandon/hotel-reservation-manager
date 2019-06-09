@@ -1,6 +1,9 @@
 <template>
 <div class="rack">
     <el-card class="box-card" id="rack-box" v-loading="!rackDataReady">
+      <div slot="header" class="clearfix reservations-form__title">
+        Rack
+      </div>
       <el-row>
         <el-col :span="2">
           <div class="rackSideBar">
@@ -18,11 +21,11 @@
             </div>
           </div>
         </el-col>
-        <el-col :span="21">
+        <el-col :span="22">
           <div class="scrolling-wrapper" v-on:scroll="checkLimits()" id="scrollable">
             <div class="date" v-bind:id="index" v-bind:key="index" v-for="(day, index) in days">
               {{format(day)}}
-              <div class="roomStates" :id="format(day)" v-on:scroll="syncScrollsByRack(day)">
+              <div class="roomStates" :id="day" v-on:scroll="syncScrollsByRack(day)">
                 <el-row>
                   <el-col class="roomState" v-bind:id="index" v-bind:key="index" v-for="(room, index) in rooms">
                     <p class="busyText" v-if="isBusy(room, day)">ocupada</p>
@@ -35,7 +38,7 @@
         </el-col>
       </el-row>
     </el-card>
-    <ReservationComponent :rackRooms="rooms" :rackReservations="reservations" @newReservation="handleReservation"/>
+    <ReservationComponent :rackRooms="rooms" :rackReservations="reservations" :rackDictionary="dictionary" :rackReady="rackDataReady" @newReservation="handleReservation"/>
 </div>
 </template>
 
@@ -70,7 +73,7 @@ import ReservationComponent from './ReservationComponent.vue'
       this.updateRackData();
     },
     mounted() {
-        document.getElementById('scrollable').scrollLeft =  1100;
+        document.getElementById('scrollable').scrollLeft =  690;
     },
     methods: {
       handleReservation(reservationData) {
@@ -97,15 +100,16 @@ import ReservationComponent from './ReservationComponent.vue'
             .then(response => {
               // this.reservations = response.data
               this.reservations = [
-                {"id":"77","start":"2019-06-08 04:00:00","end":"2019-06-08 04:00:00","final_price":"0","code":"KZN7ISJW11","document_number":"192642264","checkin_name":"","room_id":"1","type":null,"reservation_id":"0"},
-                {"id":"78","start":"2019-06-10 04:00:00","end":"2019-06-10 04:00:00","final_price":"0","code":"F83O6E15WG","document_number":"192642264","checkin_name":"","room_id":"2","type":null,"reservation_id":"0"},
-                {"id":"79","start":"2019-06-09 04:00:00","end":"2019-06-09 04:00:00","final_price":"0","code":"VSF1LTLYV7","document_number":"192642264","checkin_name":"","room_id":"3","type":null,"reservation_id":"0"},
-                {"id":"80","start":"2019-06-07 04:00:00","end":"2019-06-07 04:00:00","final_price":"0","code":"ODJZSJG1F7","document_number":"192642264","checkin_name":"","room_id":"4","type":null,"reservation_id":"0"},
-                {"id":"81","start":"2019-06-08 04:00:00","end":"2019-06-08 04:00:00","final_price":"0","code":"59U1HVJDW3","document_number":"192642264","checkin_name":"","room_id":"5","type":null,"reservation_id":"0"},
-                {"id":"82","start":"2019-06-10 04:00:00","end":"2019-06-10 04:00:00","final_price":"0","code":"PNLLSXY954","document_number":"197535466","checkin_name":"","room_id":"5","type":null,"reservation_id":"0"},
-                {"id":"83","start":"2019-06-11 04:00:00","end":"2019-06-12 04:00:00","final_price":"0","code":"YROWFMFAPI","document_number":"192642264","checkin_name":"","room_id":"3","type":null,"reservation_id":"0"}
+                {"id":"83","start":"2019-06-11 04:00:00","end":"2019-06-12 04:00:00","final_price":"0","code":"YROWFMFAPI","document_number":"51266633","checkin_name":"Sebastián Piñera","room_id":"3","type":null,"reservation_id":"0"},
+                {"id":"82","start":"2019-06-10 04:00:00","end":"2019-06-10 04:00:00","final_price":"0","code":"PNLLSXY954","document_number":"197535466","checkin_name":"Leandro Pizarro","room_id":"5","type":null,"reservation_id":"0"},
+                {"id":"81","start":"2019-06-08 04:00:00","end":"2019-06-08 04:00:00","final_price":"0","code":"59U1HVJDW3","document_number":"197535466","checkin_name":"Gabriel Gaete","room_id":"5","type":null,"reservation_id":"0"},
+                {"id":"80","start":"2019-06-07 04:00:00","end":"2019-06-07 04:00:00","final_price":"0","code":"ODJZSJG1F7","document_number":"223387020","checkin_name":"Alcides Quispe","room_id":"4","type":null,"reservation_id":"0"},
+                {"id":"79","start":"2019-06-09 04:00:00","end":"2019-06-09 04:00:00","final_price":"0","code":"VSF1LTLYV7","document_number":"190692817","checkin_name":"Bastián Vera","room_id":"3","type":null,"reservation_id":"0"},
+                {"id":"78","start":"2019-06-10 04:00:00","end":"2019-06-10 04:00:00","final_price":"0","code":"F83O6E15WG","document_number":"180400581","checkin_name":"Brian Jorquera","room_id":"2","type":null,"reservation_id":"0"},
+                {"id":"77","start":"2019-06-08 04:00:00","end":"2019-06-08 04:00:00","final_price":"0","code":"KZN7ISJW11","document_number":"192642264","checkin_name":"Leandro Pizarro","room_id":"1","type":null,"reservation_id":"0"},
               ];
               this.updateDictionary();
+              this.formatReservations();
               this.rackDataReady = true;
             });
           });
@@ -118,11 +122,11 @@ import ReservationComponent from './ReservationComponent.vue'
 
           while (actualDay <= finalDay) {
             if (this.dictionary[reservation.room_id] != null) {
-              this.dictionary[reservation.room_id][this.format(actualDay)] = true;
+              this.dictionary[reservation.room_id][actualDay.format('ddd DD MMMM')] = true;
             }
             else {
               this.dictionary[reservation.room_id] = {};
-              this.dictionary[reservation.room_id][this.format(actualDay)] = true;
+              this.dictionary[reservation.room_id][actualDay.format('ddd DD MMMM')] = true;
             }
             actualDay.add(1, 'day');
           }
@@ -179,7 +183,7 @@ import ReservationComponent from './ReservationComponent.vue'
 
       syncScrollsByRack(day) {
         var states = document.getElementsByClassName('roomStates');
-        var scroll = document.getElementById(moment(day).format("ddd DD MMMM")).scrollTop;
+        var scroll = document.getElementById(day).scrollTop;
         
         document.getElementById('roomCodes').scrollTop = scroll;
 
@@ -198,17 +202,24 @@ import ReservationComponent from './ReservationComponent.vue'
         }
       },
       
-      format(date){
-        return moment(date).format("ddd DD MMMM");
+
+      formatReservations(){
+        this.reservations.forEach(reservation => {
+          reservation.start = moment(reservation.start).format("ddd DD MMMM");
+          reservation.end = moment(reservation.end).format("ddd DD MMMM");
+        });
       },
 
       isBusy(room, date) {
         try {
-          let bool = this.dictionary[room.id][this.format(date)];
+          let bool = this.dictionary[room.id][date.format('ddd DD MMMM')];
           return bool; 
         } catch (error) {
           return false;
         }
+      },
+      format(day) {
+        return day.format('ddd DD MMMM');
       }
     },
   }
@@ -226,13 +237,13 @@ import ReservationComponent from './ReservationComponent.vue'
 .rackSideBar {
   text-align: center;
   margin-left: -4vw;
-   white-space: nowrap;
+  white-space: nowrap;
 }
 .date, .title {
   display: inline-block;
   text-align: center;
   width: 220px;
-  font-size: 14px;
+  color: #606266;
 }
 .roomStates, .roomCodes {
   height: 40vh;
@@ -246,8 +257,8 @@ import ReservationComponent from './ReservationComponent.vue'
   background-color: #F56C6C;
 }
 .freeText {
-  color: #EBEEF5;
-  background-color: #EBEEF5;
+  color: rgb(244, 244, 245);
+  background-color: rgb(244, 244, 245);
 }
 .roomState {
   padding-left: 0% !important;
@@ -258,7 +269,7 @@ import ReservationComponent from './ReservationComponent.vue'
     padding-bottom: 10px;
 }
 #rack-box {
-    height: 45vh;
-    margin-bottom: 5vh;
+    height: 36vh;
+    margin-bottom: 4vh;
 }
 </style>

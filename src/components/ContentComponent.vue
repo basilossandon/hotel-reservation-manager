@@ -1,12 +1,10 @@
 <template>
   <div class="content">
-    <el-row>
+    <el-main>
       <div class="reservations" v-if="keyForDisplay == 1">
-        <el-col :span="24">
           <RackComponent/>
-        </el-col>
       </div>
-    </el-row>
+    </el-main>
   </div>
 </template>
 
