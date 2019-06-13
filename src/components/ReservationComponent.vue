@@ -1,6 +1,87 @@
 <template>
 <el-row :gutter="20">
-      <el-col :span="14">
+    <el-col :span="24">
+        <el-card class="box-card reservations-form">
+            <div slot="header" class="clearfix">
+                <el-row>
+                    <el-col :span="10" class="reservations-form__title">
+                        Formulario de reservación
+                    </el-col>
+                    <el-col :span=14>
+                        <el-alert
+                        v-if="showFieldsError"
+                        :title="errorTitle"
+                        type="error">
+                        </el-alert>
+                    </el-col>
+                </el-row>
+            </div>
+            <el-main>
+                <el-form ref="form" label-position="left" label-width="106px" size="small">
+                    <el-row :gutter="40">
+                        <el-col :span="12">
+                            <el-form-item label="Nombre">
+                                <el-input v-model="checkInName"></el-input>
+                            </el-form-item>
+                            <el-form-item label="Nª Documento">
+                                <el-input v-model="documentNumber"></el-input>
+                            </el-form-item>
+                            <el-form-item label="Correo">
+                                <el-input v-model="mail"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="Inicio">
+                                    <el-date-picker
+                                    id="startPicker"
+                                    v-model="start"
+                                    :editable="false"
+                                    type="date"
+                                    format="MM/dd/yyyy"
+                                    :picker-options="startPickerOptions">
+                                    </el-date-picker>
+                            </el-form-item>
+                            <el-form-item label="Término">
+                                <el-date-picker
+                                    v-model="end"
+                                    :editable="false"
+                                    type="date"
+                                    format="MM/dd/yyyy"
+                                    :disabled="start == null"
+                                    :picker-options="endPickerOptions">
+                                </el-date-picker>
+                            </el-form-item>
+                            <el-form-item label="Habitación" class="room-selector">
+                                <el-select v-model="roomId" :disabled="end == null">
+                                    <el-option
+                                    v-for="room in availableRooms"
+                                    :key="room"
+                                    :label="room"
+                                    :value="room">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-button class="reservationButton" type="primary" plain size="small" @click="addRoom()" icon="el-icon-circle-plus" :disabled="roomId == null">Añadir Habitación</el-button>
+                            <el-button class="reservationButton" type="success" size="small" @click="postReservation()" icon="el-icon-check" :disabled="postRooms.length == 0">Confirmar reserva</el-button>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                            <el-alert
+                            class="postRoomsInfo"
+                            title="Resumen:"
+                            type="info"
+                            :description="reservationInfo"
+                            :closable="false">
+                            </el-alert>
+                    </el-row>
+                </el-form>
+            </el-main>
+        </el-card>
+    </el-col>
+    <el-col :span="24">
+
+    </el-col>
+      <!-- <el-col :span="14">
         <el-card class="box-card reservations-form">
             <div slot="header" class="clearfix">
                 <el-row>
@@ -113,7 +194,7 @@
                 </el-table>
             </el-card>
           </el-row>
-      </el-col>
+      </el-col> -->
     </el-row>
 </template>
 

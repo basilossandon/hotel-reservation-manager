@@ -1,44 +1,83 @@
 <template>
 <div class="rack">
-    <el-card class="box-card" id="rack-box" v-loading="!rackDataReady">
-      <div slot="header" class="clearfix reservations-form__title">
-        Rack
-      </div>
-      <el-row>
-        <el-col :span="2">
-          <div class="rackSideBar">
-            <div class="title">
-              Habitacion
-              <div class="roomCodes" id="roomCodes" v-on:scroll="syncScrollsBySide()">
-              <el-row>
-                <el-col class="roomCode" v-bind:id="index" v-bind:key="index" v-for="(room, index) in rooms">
-                  <p>
-                    {{room.id}}
-                  </p>
-                </el-col>
-              </el-row>
-              </div>
-            </div>
+<el-row :gutter="20">
+  <el-col :span="18">
+        <el-card class="box-card" id="rack-box" v-loading="!rackDataReady">
+          <div slot="header" class="clearfix reservations-form__title">
+            Rack
           </div>
-        </el-col>
-        <el-col :span="22">
-          <div class="scrolling-wrapper" v-on:scroll="checkLimits()" id="scrollable">
-            <div class="date" v-bind:id="index" v-bind:key="index" v-for="(day, index) in days">
-              {{format(day)}}
-              <div class="roomStates" :id="day" v-on:scroll="syncScrollsByRack(day)">
-                <el-row>
-                  <el-col class="roomState" v-bind:id="index" v-bind:key="index" v-for="(room, index) in rooms">
-                    <p class="busyText" v-if="isBusy(room, day)"></p>
-                    <p class="freeText" v-else>vacante</p>
-                  </el-col>
-                </el-row>
+          <el-row>
+            <el-col :span="3">
+              <div class="rackSideBar">
+                <div class="title">
+                  Habitacion
+                  <div class="roomCodes" id="roomCodes" v-on:scroll="syncScrollsBySide()">
+                  <el-row>
+                    <el-col class="roomCode" v-bind:id="index" v-bind:key="index" v-for="(room, index) in rooms">
+                      <p>
+                        {{room.id}}
+                      </p>
+                    </el-col>
+                  </el-row>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </el-col>
-      </el-row>
+            </el-col>
+            <el-col :span="21">
+              <div class="scrolling-wrapper" v-on:scroll="checkLimits()" id="scrollable">
+                <div class="date" v-bind:id="index" v-bind:key="index" v-for="(day, index) in days">
+                  {{format(day)}}
+                  <div class="roomStates" :id="day" v-on:scroll="syncScrollsByRack(day)">
+                    <el-row>
+                      <el-col class="roomState" v-bind:id="index" v-bind:key="index" v-for="(room, index) in rooms">
+                        <p class="busyText" v-if="isBusy(room, day)"></p>
+                        <p class="freeText" v-else>vacante</p>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
+
+  </el-col>
+  <el-col :span="6">
+    <el-card class="box-card reservations-table">
+        <div slot="header" class="clearfix reservations-table__title">
+            Últimas reservaciones
+        </div>
+        <el-table
+            v-loading="!rackDataReady"
+            :data="reservations"
+            height="300"
+            >
+            <el-table-column
+            fixed
+            prop="code"
+            label="Código"
+            width="140">
+            </el-table-column>
+            <el-table-column
+            prop="checkin_name"
+            label="Cliente"
+            width="150">
+            </el-table-column>
+            <!-- <el-table-column
+            prop="start"
+            label="Inicio"
+            width="120">
+            </el-table-column>
+            <el-table-column
+            prop="end"
+            label="Término"
+            width="120">
+            </el-table-column> -->
+        </el-table>
     </el-card>
-    <ReservationComponent :rackRooms="rooms" :rackReservations="reservations" :rackDictionary="dictionary" :rackReady="rackDataReady" @newReservation="handleReservation"/>
+  </el-col>
+</el-row>
+<ReservationComponent :rackRooms="rooms" :rackReservations="reservations" :rackDictionary="dictionary" :rackReady="rackDataReady" @newReservation="handleReservation"/>
 </div>
 </template>
 
@@ -259,8 +298,6 @@ import ReservationComponent from './ReservationComponent.vue'
 .freeText {
   color: rgb(244, 244, 245);
   background-color: rgb(244, 244, 245);
-  color: #F2F6FC;
-  background-color: #F2F6FC;
 }
 .roomState {
   padding-left: 0% !important;
@@ -270,8 +307,8 @@ import ReservationComponent from './ReservationComponent.vue'
     padding-top: 0px;
     padding-bottom: 10px;
 }
-#rack-box {
-    height: 36vh;
-    margin-bottom: 4vh;
+#rack-box, .reservations-table {
+    height: 40vh;
+    margin-bottom: 20px;
 }
 </style>
