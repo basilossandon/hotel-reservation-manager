@@ -28,7 +28,7 @@
               <div class="roomStates" :id="day" v-on:scroll="syncScrollsByRack(day)">
                 <el-row>
                   <el-col class="roomState" v-bind:id="index" v-bind:key="index" v-for="(room, index) in rooms">
-                    <p class="busyText" v-if="isBusy(room, day)">ocupada</p>
+                    <p class="busyText" v-if="isBusy(room, day)"></p>
                     <p class="freeText" v-else>vacante</p>
                   </el-col>
                 </el-row>
@@ -82,7 +82,6 @@ import ReservationComponent from './ReservationComponent.vue'
       },
       updateRackData() {
           axios.get('http://157.230.12.110:8080/api/rooms').then(response => {
-            // this.rooms = response.data
             this.rooms = [
               {"id":"1","capacity":"2","price":"60000","room_type_id":"1","room_id":"0"},
               {"id":"2","capacity":"3","price":"80000","room_type_id":"2","room_id":"0"},
@@ -96,9 +95,9 @@ import ReservationComponent from './ReservationComponent.vue'
               {"id":"10","capacity":"10","price":"15000","room_type_id":"3","room_id":"0"},
               {"id":"11","capacity":"10","price":"15000","room_type_id":"3","room_id":"0"}
             ];
+            // this.rooms = response.data
             axios.get('http://157.230.12.110:8080/api/reservations')
             .then(response => {
-              // this.reservations = response.data
               this.reservations = [
                 {"id":"83","start":"2019-06-11 04:00:00","end":"2019-06-12 04:00:00","final_price":"0","code":"YROWFMFAPI","document_number":"51266633","checkin_name":"Sebastián Piñera","room_id":"3","type":null,"reservation_id":"0"},
                 {"id":"82","start":"2019-06-10 04:00:00","end":"2019-06-10 04:00:00","final_price":"0","code":"PNLLSXY954","document_number":"197535466","checkin_name":"Leandro Pizarro","room_id":"5","type":null,"reservation_id":"0"},
@@ -108,6 +107,7 @@ import ReservationComponent from './ReservationComponent.vue'
                 {"id":"78","start":"2019-06-10 04:00:00","end":"2019-06-10 04:00:00","final_price":"0","code":"F83O6E15WG","document_number":"180400581","checkin_name":"Brian Jorquera","room_id":"2","type":null,"reservation_id":"0"},
                 {"id":"77","start":"2019-06-08 04:00:00","end":"2019-06-08 04:00:00","final_price":"0","code":"KZN7ISJW11","document_number":"192642264","checkin_name":"Leandro Pizarro","room_id":"1","type":null,"reservation_id":"0"},
               ];
+              // this.reservations = response.data
               this.updateDictionary();
               this.formatReservations();
               this.rackDataReady = true;
@@ -253,12 +253,14 @@ import ReservationComponent from './ReservationComponent.vue'
   display: none;
 }
 .busyText {
-  color: #F56C6C;
-  background-color: #F56C6C;
+  height: 19px;
+  background: #F56C6C;
 }
 .freeText {
   color: rgb(244, 244, 245);
   background-color: rgb(244, 244, 245);
+  color: #F2F6FC;
+  background-color: #F2F6FC;
 }
 .roomState {
   padding-left: 0% !important;
