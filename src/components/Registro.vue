@@ -21,7 +21,7 @@
                             </el-form-item>
 
                             <el-form-item label="Edad">
-                                <el-input v-model="age" type="number"></el-input>
+                                <el-input v-model="age" type="number" :min="1"></el-input>
                             </el-form-item>
 
                             <el-form-item label="tipo de documento">
