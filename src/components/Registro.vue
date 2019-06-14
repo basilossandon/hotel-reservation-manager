@@ -1,8 +1,8 @@
 <template>
 <el-row :gutter="40">
       <el-col :span="18">
-        <el-card class="box-card registo-form">
-            <div slot="header" class="clearfix registo-form__title">
+        <el-card class="box-card registro-form">
+            <div slot="header" class="clearfix registro-form__title">
                   Formulario de check in
             </div>
             <el-main>
@@ -63,7 +63,7 @@
                                     :editable="false"
                                     type="date"
                                     format="MM/dd/yyyy"
-                                    :picker-options="startPickerOptions">
+                                    >
                                     </el-date-picker>
                             </el-form-item>
                             <el-form-item label="Fecha de Salida">
@@ -72,7 +72,7 @@
                                     :editable="false"
                                     type="date"
                                     format="MM/dd/yyyy"
-                                    :picker-options="endPickerOptions">
+                                    >
                                 </el-date-picker>
                             </el-form-item>
                             
@@ -97,11 +97,12 @@
 import axios from 'axios'
 import moment from 'moment'
 import "moment/locale/es"
+import json from '../assets/json/nacionalidad.json';
     
 export default {
     data(){
         return {
-            origen: [],
+            origen: json,
             country: '',
             documentType: '',
             documentNumber: '',
@@ -124,20 +125,8 @@ export default {
             }]
         }
         
-    },
-    methods: {
-        obtenerNacionalidad: function(){
-            axios.get('nacionalidad.json').then(response => {
-                this.origen = response.data
-            })
-        },
-        postRegistro(){
-            axios
-        }
-    },
-    mounted: function(){
-        this.obtenerNacionalidad();
     }
+    
     
 }
 </script>
@@ -148,13 +137,13 @@ export default {
 .right {
   font-family: "Avenir", Helvetica, Arial, sans-serif !important;
 }
-.registo-table, .registo-form{
-    height: 70vh;
+.registro-table, .registro-form{
+    height: 80vh;
 }
-.registo-table > .el-card__body {
+.registro-table > .el-card__body {
     padding-top: 0px; 
 }
-.registo-form > .el-card__body {
+.registro-form > .el-card__body {
     padding-top: 0px; 
 }
 .el-table__empty-text {
