@@ -263,7 +263,7 @@ import ReservationComponent from './ReservationComponent.vue'
   color: #606266;
 }
 .roomStates, .roomCodes {
-  height: 40vh;
+  height: 29vh;
   overflow-y: scroll; 
 }
 .roomStates::-webkit-scrollbar, .roomCodes::-webkit-scrollbar{

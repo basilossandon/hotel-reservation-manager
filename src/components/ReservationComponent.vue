@@ -5,7 +5,7 @@
             <div slot="header" class="clearfix">
                 <el-row>
                     <el-col :span="10" class="reservations-form__title">
-                        Formulario de reservación {{roomId}}
+                        Formulario de reservación
                     </el-col>
                     <el-col :span=14>
                         <el-alert
@@ -53,12 +53,17 @@
                             </el-form-item>
                             <el-form-item label="Habitación" class="room-selector">
                                 <el-select v-model="roomId" :disabled="end == null">
-                                    <el-option
-                                    v-for="room in availableRooms"
-                                    :key="room"
-                                    :label="room"
-                                    :value="room">
-                                    </el-option>
+                                    <el-option-group
+                                    v-for="group in roomsGrouped"
+                                    :key="group.label"
+                                    :label="group.label">
+                                        <el-option
+                                            v-for="room in group.rooms"
+                                            :key="room"
+                                            :label="room"
+                                            :value="room">
+                                        </el-option>
+                                    </el-option-group>
                                 </el-select>
                             </el-form-item>
                             <el-button class="reservationButton" type="primary" plain size="small" @click="addRoom()" icon="el-icon-circle-plus" :disabled="roomId == null">Añadir Habitación</el-button>
@@ -73,10 +78,18 @@
                                     <div class="reservationInfo__description">
                                         {{reservationInfo}}
                                     </div>
-                                    <div class="reservationInfo__rooms" v-for="(room, index) in roomsInfo" :key="index">
-                                        <el-main class="reservationInfo__rooms-text">
-                                            {{room}}
-                                        </el-main>
+                                    <div class="reservationInfo__rooms">
+                                        <div v-for="(room, index) in postRooms" :key="index">
+                                            <el-main class="reservationInfo__rooms-text">
+                                                <el-tag
+                                                :key="room"
+                                                closable
+                                                :disable-transitions="false"
+                                                @close="handleAlertClose(room)">
+                                                {{roomsInfo[index]}}
+                                                </el-tag>
+                                            </el-main>
+                                        </div>
                                     </div>
                                 </el-main>
                             </div>
@@ -115,7 +128,6 @@ export default {
             checkInName: '',
             roomId: null,
             date: '',
-            availableRooms: [],
             postRooms: [],
             postDates: [],
             showButton: false,
@@ -144,37 +156,79 @@ export default {
         start: function (value) {
             if (value == null) {
                 this.end = null;
-                this.availableRooms = [];
+            }
+            else {
+                if (this.end != null) {
+                    if (moment(this.end) < moment(this.start)) {
+                        this.end = null;
+                    }
+                }
             }
         },
         end: function (value) {
-            if (value != null) {
-                this.availableRooms = [];
-                this.rackRooms.forEach(room => {
-                    let start = false;
-                    let end = false;
-                    try {
-                        start = this.rackDictionary[room.id][this.format(this.start)];
-                    } catch (error) {
-                        start = false;
-                    }
-
-                    try {
-                        end = this.rackDictionary[room.id][this.format(this.end)];
-                    } catch (error) {
-                        end = false;
-                    }
-                    if (!start && !end) {
-                        this.availableRooms.push(room.id);
-                    }
-                });
-            }
-            else {
+            if (value == null) {
                 this.roomId = null;
             }
         },
     },
     computed: {
+        roomsGrouped: function() {
+            let rooms = [
+                {
+                    label: 'Simple',
+                    rooms: []
+                },
+                {
+                    label: 'Doble',
+                    rooms: []
+                },
+                {
+                    label: 'Triple',
+                    rooms: []
+                },
+                {
+                    label: 'Matrimonial',
+                    rooms: []
+                }
+            ];
+            this.rackRooms.forEach(room => {
+                let start = false;
+                let end = false;
+                try {
+                    start = this.rackDictionary[room.id][this.format(this.start)];
+                } catch (error) {
+                    start = false;
+                }
+
+                try {
+                    end = this.rackDictionary[room.id][this.format(this.end)];
+                } catch (error) {
+                    end = false;
+                }
+                if (!start && !end) {
+                    let isReservated = false;
+                    this.postRooms.forEach(postRoom => {
+                        if (room.id == postRoom) {
+                            isReservated = true;
+                        }
+                    });
+                    if (!isReservated) {
+                        let index = 0;
+                        if (room.type[0] == 'D') {
+                            index = 1;
+                        }
+                        if (room.type[0] == 'T') {
+                            index = 2;
+                        }
+                        if (room.type[0] == 'M') {
+                            index = 3;
+                        }
+                        rooms[index].rooms.push(room.id);
+                    }
+                }
+            });
+            return rooms;
+        },
         reservationInfo: function() {
             var text = '';
             if (this.checkInName) {
@@ -185,9 +239,6 @@ export default {
                             text += ' Para las siguientes habitaciones:';
                     }
                 } 
-            }
-            else {
-                text += '...';
             }
             return text;
         },
@@ -209,7 +260,6 @@ export default {
                 this.postRooms.push(this.roomId);
                 this.postRooms = this.postRooms.sort();
                 this.postDates.push([this.start, this.end]);
-                this.availableRooms.splice(this.availableRooms.indexOf(this.roomId), 1);
                 this.roomId = null;
             }
             else {
@@ -219,6 +269,22 @@ export default {
                     type: 'error'
                 });
             }
+        },
+        addRoomsGrouped(room) {
+            let index = 0;
+            if (room.type[0] == 'D') {
+                index = 1;
+            }
+            if (room.type[0] == 'T') {
+                index = 2;
+            }
+            if (room.type[0] == 'M') {
+                index = 3;
+            }
+            this.roomsGrouped[index].rooms.push(room.id);
+        },
+        removeRoomsGrouped(id) {
+
         },
         postReservation() {
             var code = makeid(10);
@@ -264,46 +330,6 @@ export default {
                     });
                 }
         },
-        removeRoom() {
-            if (this.list_rooms.length != 1) {
-                this.list_rooms.splice(-1, 1)
-            }
-        },
-
-        post() {
-            let today = moment();
-            let tomorrow = today.clone().add(1, 'day');
-            axios({
-                method: "POST",
-                url: "http://157.230.12.110:8080/api/reservations/",
-                data: {
-                    start: today,
-                    end: tomorrow,
-                    finalPrice: 100000,
-                    documentNumber: '192642264',
-                    checkinName: 'Leandro Pizarro',
-                    code: 'L0BPJ530HB',
-                    roomId: 2
-                },
-                config: {
-                    headers: {
-                        "Content-Type": "application/json"
-                        }
-                }
-            })
-            .then(response => {
-                console.log(response.data);
-                this.$notify({
-                title: "Reservation Created",
-                message: "It's now in the rack.",
-                type: "success"
-                });
-            })
-            .catch(error => this.$notify.error({
-                title: "Error",
-                message: "There was an error trying to create the reservation"
-            }));
-        },
         format(date){
             return moment(date).format("ddd DD MMMM");
         },
@@ -318,6 +344,9 @@ export default {
             });
             return false;
         },
+        handleAlertClose(room) {
+            this.postRooms.splice( this.postRooms.indexOf(room), 1 );
+        }
     },
 }
 
@@ -351,21 +380,27 @@ function makeid(length) {
 .form-title {
     margin-bottom: 3vh;
 }
-.el-input__inner, .el-input--small {
+/* .el-input__inner, .el-input--small {
     width: 300px;
-}
+    el-date-editor
+} */
 .reservationButton {
     margin-top: 1vh;
 }
 .postRoomsInfo {
-    background-color: #f4f4f5;
+    background-color: rgb(244, 244, 245);
     color: #909399;
     border-radius: 6px;
     font-size: 14px;
+    height: 32vh;
 }
 .reservationInfo__title {
     font-weight: bold;
     margin-bottom: 1em;
+}
+.reservationInfo__rooms {
+    height: 15vh;
+    overflow-y: scroll;
 }
 .reservationInfo__description {
     margin-bottom: 1em;
