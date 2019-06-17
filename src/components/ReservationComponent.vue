@@ -1,11 +1,11 @@
 <template>
-<el-row :gutter="20">
+<el-row>
     <el-col :span="24">
         <el-card class="box-card reservations-form">
             <div slot="header" class="clearfix">
                 <el-row>
                     <el-col :span="10" class="reservations-form__title">
-                        Formulario de reservación
+                        Formulario de reservación {{roomId}}
                     </el-col>
                     <el-col :span=14>
                         <el-alert
@@ -16,10 +16,10 @@
                     </el-col>
                 </el-row>
             </div>
-            <el-main>
+            <el-main class="bg">
                 <el-form ref="form" label-position="left" label-width="106px" size="small">
-                    <el-row :gutter="40">
-                        <el-col :span="12">
+                    <el-row>
+                        <el-col :span="7" class="bg2">
                             <el-form-item label="Nombre">
                                 <el-input v-model="checkInName"></el-input>
                             </el-form-item>
@@ -27,10 +27,10 @@
                                 <el-input v-model="documentNumber"></el-input>
                             </el-form-item>
                             <el-form-item label="Correo">
-                                <el-input v-model="mail"></el-input>
+                                <el-input v-model="email"></el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="12">
+                        <el-col :span="7" class="bg2">
                             <el-form-item label="Inicio">
                                     <el-date-picker
                                     id="startPicker"
@@ -64,137 +64,28 @@
                             <el-button class="reservationButton" type="primary" plain size="small" @click="addRoom()" icon="el-icon-circle-plus" :disabled="roomId == null">Añadir Habitación</el-button>
                             <el-button class="reservationButton" type="success" size="small" @click="postReservation()" icon="el-icon-check" :disabled="postRooms.length == 0">Confirmar reserva</el-button>
                         </el-col>
-                    </el-row>
-                    <el-row>
-                            <el-alert
-                            class="postRoomsInfo"
-                            title="Resumen:"
-                            type="info"
-                            :description="reservationInfo"
-                            :closable="false">
-                            </el-alert>
+                        <el-col :span="10">
+                            <div class="postRoomsInfo">
+                                <el-main>
+                                    <div class="reservationInfo__title">
+                                        Resumen:
+                                    </div>
+                                    <div class="reservationInfo__description">
+                                        {{reservationInfo}}
+                                    </div>
+                                    <div class="reservationInfo__rooms" v-for="(room, index) in roomsInfo" :key="index">
+                                        <el-main class="reservationInfo__rooms-text">
+                                            {{room}}
+                                        </el-main>
+                                    </div>
+                                </el-main>
+                            </div>
+                        </el-col>
                     </el-row>
                 </el-form>
             </el-main>
         </el-card>
     </el-col>
-    <el-col :span="24">
-
-    </el-col>
-      <!-- <el-col :span="14">
-        <el-card class="box-card reservations-form">
-            <div slot="header" class="clearfix">
-                <el-row>
-                    <el-col :span="10" class="reservations-form__title">
-                        Formulario de reservación
-                    </el-col>
-                    <el-col :span=14>
-                        <el-alert
-                        v-if="showFieldsError"
-                        :title="errorTitle"
-                        type="error">
-                        </el-alert>
-                    </el-col>
-                </el-row>
-            </div>
-            <el-main>
-                <el-form ref="form" label-position="left" label-width="106px" size="small">
-                    <el-row :gutter="40">
-                        <el-col :span="12">
-                            <el-form-item label="Nombre">
-                                <el-input v-model="checkInName"></el-input>
-                            </el-form-item>
-                            <el-form-item label="Nª Documento">
-                                <el-input v-model="documentNumber"></el-input>
-                            </el-form-item>
-                            <el-form-item label="Correo">
-                                <el-input v-model="mail"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="12">
-                            <el-form-item label="Inicio">
-                                    <el-date-picker
-                                    id="startPicker"
-                                    v-model="start"
-                                    :editable="false"
-                                    type="date"
-                                    format="MM/dd/yyyy"
-                                    :picker-options="startPickerOptions">
-                                    </el-date-picker>
-                            </el-form-item>
-                            <el-form-item label="Término">
-                                <el-date-picker
-                                    v-model="end"
-                                    :editable="false"
-                                    type="date"
-                                    format="MM/dd/yyyy"
-                                    :disabled="start == null"
-                                    :picker-options="endPickerOptions">
-                                </el-date-picker>
-                            </el-form-item>
-                            <el-form-item label="Habitación" class="room-selector">
-                                <el-select v-model="roomId" :disabled="end == null">
-                                    <el-option
-                                    v-for="room in availableRooms"
-                                    :key="room"
-                                    :label="room"
-                                    :value="room">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                            <el-button class="reservationButton" type="primary" plain size="small" @click="addRoom()" icon="el-icon-circle-plus" :disabled="roomId == null">Añadir Habitación</el-button>
-                            <el-button class="reservationButton" type="success" size="small" @click="postReservation()" icon="el-icon-check" :disabled="postRooms.length == 0">Confirmar reserva</el-button>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                            <el-alert
-                            class="postRoomsInfo"
-                            title="Resumen:"
-                            type="info"
-                            :description="reservationInfo"
-                            :closable="false">
-                            </el-alert>
-                    </el-row>
-                </el-form>
-            </el-main>
-        </el-card>
-      </el-col>
-      <el-col :span="10">
-          <el-row>
-            <el-card class="box-card reservations-table">
-                <div slot="header" class="clearfix reservations-table__title">
-                    Últimas reservaciones
-                </div>
-                <el-table
-                    v-loading="!rackReady"
-                    :data="rackReservations"
-                    style="width: 100%"
-                    height="300">
-                    <el-table-column
-                    fixed
-                    prop="code"
-                    label="Código"
-                    width="140">
-                    </el-table-column>
-                    <el-table-column
-                    prop="checkin_name"
-                    label="Cliente"
-                    width="150">
-                    </el-table-column>
-                    <el-table-column
-                    prop="start"
-                    label="Inicio"
-                    width="120">
-                    </el-table-column>
-                    <el-table-column
-                    prop="end"
-                    label="Término"
-                    width="120">
-                    </el-table-column>
-                </el-table>
-            </el-card>
-          </el-row>
-      </el-col> -->
     </el-row>
 </template>
 
@@ -220,7 +111,7 @@ export default {
             end: null,
             finalPrice: 0,
             documentNumber: '',
-            mail: '',
+            email: '',
             checkInName: '',
             roomId: null,
             date: '',
@@ -290,21 +181,8 @@ export default {
                 text += 'Reserva a nombre de ' + this.checkInName;
                 if (this.documentNumber) {
                     text += ', número de documento ' + this.documentNumber + '.';
-                    if (this.start) {
-                        text += '. Con inicio el día ' + this.formatAll(this.start);
-                        if (this.end) {
-                            text += ' y término el día ' + this.formatAll(this.end) + '.'
-                            if (this.postRooms.length == 1) {
-                                text += ' La habitacion solicitada es la ' + this.postRooms[0] + '.';
-                            }
-                            if (this.postRooms.length > 1) {
-                                text += ' Las habitaciones solicitadas son: '
-                                this.postRooms.forEach(room => {
-                                    text += ' ' + room;
-                                });
-                                text += '.';
-                            }
-                        }
+                    if (this.postRooms.length > 0) {
+                            text += ' Para las siguientes habitaciones:';
                     }
                 } 
             }
@@ -312,17 +190,26 @@ export default {
                 text += '...';
             }
             return text;
+        },
+        roomsInfo: function() {
+            var texts = [];
+            if (this.checkInName && this.documentNumber) {
+                if (this.postRooms.length > 0) {
+                    for(let i = 0; i < this.postRooms.length; i++) {
+                        texts.push("    Habitación " + this.postRooms[i] + ' desde el ' + this.formatAll(this.postDates[i][0]) + ' hasta el ' + this.formatAll(this.postDates[i][1]) + '.');
+                    }
+                }
+            }
+            return texts;
         }
     },
     methods: {
         addRoom() {
-            if (this.checkInName && this.documentNumber && this.mail) {
+            if (this.checkInName && this.documentNumber && this.email) {
                 this.postRooms.push(this.roomId);
                 this.postRooms = this.postRooms.sort();
                 this.postDates.push([this.start, this.end]);
-                this.availableRooms = _.remove(this.availableRooms, function(n) {
-                    return n == this.roomId;
-                });
+                this.availableRooms.splice(this.availableRooms.indexOf(this.roomId), 1);
                 this.roomId = null;
             }
             else {
@@ -344,12 +231,12 @@ export default {
                     data: {
                         start: start,
                         end: end,
-                        finalPrice: this.finalPrice,
                         checkInName: this.checkInName,
                         lastName: this.lastName,
                         documentNumber: this.documentNumber,
                         code: code,
-                        roomId: this.postRooms[i],
+                        email: this.email,
+                        roomId: this.postRooms[i]
                     },
                     config: {
                         headers: {
@@ -363,15 +250,18 @@ export default {
                             message: "Se ha generado la reserva. Su código es: " + response.data.code + ".",
                             type: "success"
                         });
+                        this.start = null;
                         this.postRooms = [];
                         this.postDates = [];
                         this.showButton = false;
                         this.$emit('newReservation', response.data);
                     })
-                    .catch(error => this.$notify.error({
-                        title: "Error",
-                        message: "Ha ocurrido un error al intentar realizar la reserva."
-                    }));
+                    .catch(error => {
+                        this.$notify.error({
+                            title: "Error",
+                            message: "Ha ocurrido un error al intentar realizar la reserva."
+                        });
+                    });
                 }
         },
         removeRoom() {
@@ -445,15 +335,12 @@ function makeid(length) {
 </script>
 
 <style scoped>
+.reservations-form {
+    height: 46vh;
+}
 .el-notification,
 .right {
   font-family: "Avenir", Helvetica, Arial, sans-serif !important;
-}
-.reservations-table, .reservations-form{
-    height: 47.3vh;
-}
-.reservations-table > .el-card__body {
-    padding-top: 0px; 
 }
 .reservations-form > .el-card__body {
     padding-top: 0px; 
@@ -464,16 +351,27 @@ function makeid(length) {
 .form-title {
     margin-bottom: 3vh;
 }
-.el-input__inner {
-    width: 220px;
-}
-.room-selector {
-    height: 32px;
+.el-input__inner, .el-input--small {
+    width: 300px;
 }
 .reservationButton {
     margin-top: 1vh;
 }
 .postRoomsInfo {
-    margin-top: 1.5em;
+    background-color: #f4f4f5;
+    color: #909399;
+    border-radius: 6px;
+    font-size: 14px;
+}
+.reservationInfo__title {
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+.reservationInfo__description {
+    margin-bottom: 1em;
+}
+.reservationInfo__rooms-text {
+    padding-top: 5px;
+    padding-bottom: 0px;
 }
 </style>

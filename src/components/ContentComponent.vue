@@ -1,6 +1,6 @@
 <template>
   <div class="content">
-    <el-main>
+    <el-main class="main-no-padding">
       <div class="reservations" v-if="keyForDisplay == 1">
           <RackComponent/>
       </div>
@@ -37,6 +37,9 @@ export default {
 }
 .el-card, .el-message {
     border-radius: 6px !important;
+}
+.main-no-padding {
+  padding-bottom: 0px;
 }
 </style>
 

@@ -59,7 +59,7 @@
             width="140">
             </el-table-column>
             <el-table-column
-            prop="checkin_name"
+            prop="checkInName"
             label="Cliente"
             width="150">
             </el-table-column>
@@ -121,32 +121,10 @@ import ReservationComponent from './ReservationComponent.vue'
       },
       updateRackData() {
           axios.get('http://157.230.12.110:8080/api/rooms').then(response => {
-            this.rooms = [
-              {"id":"1","capacity":"2","price":"60000","room_type_id":"1","room_id":"0"},
-              {"id":"2","capacity":"3","price":"80000","room_type_id":"2","room_id":"0"},
-              {"id":"3","capacity":"2","price":"60000","room_type_id":"1","room_id":"0"},
-              {"id":"4","capacity":"3","price":"80000","room_type_id":"2","room_id":"0"},
-              {"id":"5","capacity":"3","price":"80000","room_type_id":"2","room_id":"0"},
-              {"id":"6","capacity":"4","price":"95000","room_type_id":"3","room_id":"0"},
-              {"id":"7","capacity":"5","price":"20000","room_type_id":"1","room_id":"0"},
-              {"id":"8","capacity":"5","price":"20000","room_type_id":"1","room_id":"0"},
-              {"id":"9","capacity":"10","price":"15000","room_type_id":"3","room_id":"0"},
-              {"id":"10","capacity":"10","price":"15000","room_type_id":"3","room_id":"0"},
-              {"id":"11","capacity":"10","price":"15000","room_type_id":"3","room_id":"0"}
-            ];
-            // this.rooms = response.data
-            axios.get('http://157.230.12.110:8080/api/reservations')
+            this.rooms = response.data
+            axios.get('http://157.230.12.110:8080/api/reservations/')
             .then(response => {
-              this.reservations = [
-                {"id":"83","start":"2019-06-11 04:00:00","end":"2019-06-12 04:00:00","final_price":"0","code":"YROWFMFAPI","document_number":"51266633","checkin_name":"Sebastián Piñera","room_id":"3","type":null,"reservation_id":"0"},
-                {"id":"82","start":"2019-06-10 04:00:00","end":"2019-06-10 04:00:00","final_price":"0","code":"PNLLSXY954","document_number":"197535466","checkin_name":"Leandro Pizarro","room_id":"5","type":null,"reservation_id":"0"},
-                {"id":"81","start":"2019-06-08 04:00:00","end":"2019-06-08 04:00:00","final_price":"0","code":"59U1HVJDW3","document_number":"197535466","checkin_name":"Gabriel Gaete","room_id":"5","type":null,"reservation_id":"0"},
-                {"id":"80","start":"2019-06-07 04:00:00","end":"2019-06-07 04:00:00","final_price":"0","code":"ODJZSJG1F7","document_number":"223387020","checkin_name":"Alcides Quispe","room_id":"4","type":null,"reservation_id":"0"},
-                {"id":"79","start":"2019-06-09 04:00:00","end":"2019-06-09 04:00:00","final_price":"0","code":"VSF1LTLYV7","document_number":"190692817","checkin_name":"Bastián Vera","room_id":"3","type":null,"reservation_id":"0"},
-                {"id":"78","start":"2019-06-10 04:00:00","end":"2019-06-10 04:00:00","final_price":"0","code":"F83O6E15WG","document_number":"180400581","checkin_name":"Brian Jorquera","room_id":"2","type":null,"reservation_id":"0"},
-                {"id":"77","start":"2019-06-08 04:00:00","end":"2019-06-08 04:00:00","final_price":"0","code":"KZN7ISJW11","document_number":"192642264","checkin_name":"Leandro Pizarro","room_id":"1","type":null,"reservation_id":"0"},
-              ];
-              // this.reservations = response.data
+              this.reservations = response.data;
               this.updateDictionary();
               this.formatReservations();
               this.rackDataReady = true;
@@ -160,12 +138,12 @@ import ReservationComponent from './ReservationComponent.vue'
           let finalDay = moment(reservation.end);
 
           while (actualDay <= finalDay) {
-            if (this.dictionary[reservation.room_id] != null) {
-              this.dictionary[reservation.room_id][actualDay.format('ddd DD MMMM')] = true;
+            if (this.dictionary[reservation.roomId] != null) {
+              this.dictionary[reservation.roomId][actualDay.format('ddd DD MMMM')] = true;
             }
             else {
-              this.dictionary[reservation.room_id] = {};
-              this.dictionary[reservation.room_id][actualDay.format('ddd DD MMMM')] = true;
+              this.dictionary[reservation.roomId] = {};
+              this.dictionary[reservation.roomId][actualDay.format('ddd DD MMMM')] = true;
             }
             actualDay.add(1, 'day');
           }
