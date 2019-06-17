@@ -191,42 +191,51 @@ export default {
                     rooms: []
                 }
             ];
-            this.rackRooms.forEach(room => {
-                let start = false;
-                let end = false;
-                try {
-                    start = this.rackDictionary[room.id][this.format(this.start)];
-                } catch (error) {
-                    start = false;
-                }
-
-                try {
-                    end = this.rackDictionary[room.id][this.format(this.end)];
-                } catch (error) {
-                    end = false;
-                }
-                if (!start && !end) {
-                    let isReservated = false;
-                    this.postRooms.forEach(postRoom => {
-                        if (room.id == postRoom) {
-                            isReservated = true;
+            if (this.start && this.end) {
+                this.rackRooms.forEach(room => {
+                    console.log("Room to search: " + room.id);
+                    var isTaken = false;
+                    var date = moment(this.start);
+                    var end = moment(this.end);
+                    while (date <= end) {
+                    console.log("Check: " + this.format(date));
+                        try {
+                            isTaken = this.rackDictionary[room.id][this.format(date)];
+                            if (isTaken) {
+                                console.log("Is taken");
+                                break;
+                            }
                         }
-                    });
-                    if (!isReservated) {
-                        let index = 0;
-                        if (room.type[0] == 'D') {
-                            index = 1;
+                        catch (error) {
+                            isTaken = false;
                         }
-                        if (room.type[0] == 'T') {
-                            index = 2;
-                        }
-                        if (room.type[0] == 'M') {
-                            index = 3;
-                        }
-                        rooms[index].rooms.push(room.id);
+                        date = date.clone().add(1,'day');
                     }
-                }
-            });
+    
+                    if (!isTaken) {
+                        console.log(" => Room " + room.id + ' is not taken');
+                        let isReservated = false;
+                        this.postRooms.forEach(postRoom => {
+                            if (room.id == postRoom) {
+                                isReservated = true;
+                            }
+                        });
+                        if (!isReservated) {
+                            let index = 0;
+                            if (room.type[0] == 'D') {
+                                index = 1;
+                            }
+                            if (room.type[0] == 'T') {
+                                index = 2;
+                            }
+                            if (room.type[0] == 'M') {
+                                index = 3;
+                            }
+                            rooms[index].rooms.push(room.id);
+                        }
+                    }
+                });
+            }
             return rooms;
         },
         reservationInfo: function() {
@@ -283,9 +292,6 @@ export default {
             }
             this.roomsGrouped[index].rooms.push(room.id);
         },
-        removeRoomsGrouped(id) {
-
-        },
         postReservation() {
             var code = makeid(10);
             for (let i = 0; i < this.postRooms.length; i++) {
@@ -316,6 +322,8 @@ export default {
                             message: "Se ha generado la reserva. Su código es: " + response.data.code + ".",
                             type: "success"
                         });
+                        this.checkInName = '';
+                        this.documentNumber = '';
                         this.start = null;
                         this.postRooms = [];
                         this.postDates = [];
@@ -336,17 +344,11 @@ export default {
         formatAll(date){
             return moment(date).format("dddd DD MMMM");
         },
-        isInReservations(day) {
-            this.rackReservations.forEach(reservation => {
-                if (reservation.start == day || reservation.end == day) {
-                    return true;
-                }
-            });
-            return false;
-        },
         handleAlertClose(room) {
-            this.postRooms.splice( this.postRooms.indexOf(room), 1 );
-        }
+            let index = this.postRooms.indexOf(room);
+            this.postRooms.splice( index, 1 );
+            this.postDates.splice( index, 1 );
+        },
     },
 }
 

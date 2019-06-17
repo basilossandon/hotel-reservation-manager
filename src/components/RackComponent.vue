@@ -112,7 +112,7 @@ import ReservationComponent from './ReservationComponent.vue'
       this.updateRackData();
     },
     mounted() {
-        document.getElementById('scrollable').scrollLeft =  690;
+        document.getElementById('scrollable').scrollLeft =  660;
     },
     methods: {
       handleReservation(reservationData) {
@@ -170,7 +170,7 @@ import ReservationComponent from './ReservationComponent.vue'
         }
         if (a == 0) {
             for(let i=0; i < 10; i++) {
-                let previous = this.days[0].clone().add(-1,'day')
+                let previous = this.days[0].clone().add(-1,'day');
                 this.len++;
                 this.firstItem--;
                 this.days = [previous].concat(this.days);
