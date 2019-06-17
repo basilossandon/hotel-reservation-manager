@@ -116,7 +116,7 @@ import ReservationComponent from './ReservationComponent.vue'
     },
     methods: {
       handleReservation(reservationData) {
-        this.reservations.push(reservationData);
+        this.reservations.unshift(reservationData);
         this.updateDictionary();
       },
       updateRackData() {
@@ -124,7 +124,7 @@ import ReservationComponent from './ReservationComponent.vue'
             this.rooms = response.data
             axios.get('http://157.230.12.110:8080/api/reservations/')
             .then(response => {
-              this.reservations = response.data;
+              this.reservations = _.reverse(response.data);
               this.updateDictionary();
               this.formatReservations();
               this.rackDataReady = true;
