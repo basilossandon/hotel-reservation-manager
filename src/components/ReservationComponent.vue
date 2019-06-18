@@ -324,6 +324,7 @@ export default {
                         });
                         this.checkInName = '';
                         this.documentNumber = '';
+                        this.email = '';
                         this.start = null;
                         this.postRooms = [];
                         this.postDates = [];
@@ -382,15 +383,11 @@ function makeid(length) {
 .form-title {
     margin-bottom: 3vh;
 }
-/* .el-input__inner, .el-input--small {
-    width: 300px;
-    el-date-editor
-} */
 .reservationButton {
     margin-top: 1vh;
 }
 .postRoomsInfo {
-    background-color: rgb(244, 244, 245);
+    background-color: #F5F7FA;
     color: #909399;
     border-radius: 6px;
     font-size: 14px;

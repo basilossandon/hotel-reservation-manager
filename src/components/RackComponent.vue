@@ -112,7 +112,7 @@ import ReservationComponent from './ReservationComponent.vue'
       this.updateRackData();
     },
     mounted() {
-        document.getElementById('scrollable').scrollLeft =  660;
+        document.getElementById('scrollable').scrollLeft =  880;
     },
     methods: {
       handleReservation(reservationData) {
@@ -272,6 +272,14 @@ import ReservationComponent from './ReservationComponent.vue'
 .busyText {
   height: 19px;
   background: #F56C6C;
+}
+.leftBusy {
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+.rightBusy {
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 .freeText {
   color: rgb(244, 244, 245);
