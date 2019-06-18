@@ -1,6 +1,6 @@
 <template>
 <el-row :gutter="40">
-      <el-col :span="14">
+      <el-col :span="16">
         <el-card class="box-card registro-form">
             <div slot="header" class="clearfix registro-form__title">
                   Formulario de check in
