@@ -178,7 +178,7 @@ export default {
             return moment(date).format("dddd DD MMMM");
         },
         buscar(){
-            let fechas = reservation.filter(reserva => reserva.id == 1)
+            
         },
         postRegistro() {
             var code = makeid(10);
@@ -204,15 +204,15 @@ export default {
                     })
                     .then(response => {
                         this.$notify({
-                            title: "Reservación Creada",
-                            message: "Se ha generado la reserva. Su código es: " + response.data.code + ".",
+                            title: "Registro creado",
+                            message: "Se ha registrado" ,
                             type: "success"
                         });
                         
                     })
                     .catch(error => this.$notify.error({
                         title: "Error",
-                        message: "Ha ocurrido un error al intentar realizar la reserva."
+                        message: "Ha ocurrido un error al intentar realizar el registro."
                     }));
                 
         }
