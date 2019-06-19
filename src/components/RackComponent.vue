@@ -15,7 +15,16 @@
                   <el-row>
                     <el-col class="roomCode" v-bind:id="index" v-bind:key="index" v-for="(room, index) in rooms">
                       <p>
-                        {{room.id}}
+                        <el-row>
+                          <el-col :span="3" :offset="8" class="text-right">
+                            {{room.id}}
+                          </el-col>
+                          <el-col :span="4" class="text-grey">
+                            <sub>
+                              {{room.type}}
+                            </sub>
+                          </el-col>
+                        </el-row>
                       </p>
                     </el-col>
                   </el-row>
@@ -120,6 +129,7 @@ import ReservationComponent from './ReservationComponent.vue'
         this.updateDictionary();
       },
       updateRackData() {
+        var code = 'KZNQLZIV9R';
           axios.get('http://157.230.12.110:8080/api/rooms').then(response => {
             this.rooms = response.data
             axios.get('http://157.230.12.110:8080/api/reservations/')
@@ -288,6 +298,21 @@ import ReservationComponent from './ReservationComponent.vue'
 .roomState {
   padding-left: 0% !important;
   padding-right: 0% !important;
+}
+.text-right {
+  text-align: right;
+  font-size: 13px;
+}
+
+.text-grey {
+  color: #C0C4CC;
+  text-transform: lowercase;
+  font-size: 12px;
+  text-overflow: clip;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: left;
+  margin-left: 0.2em;
 }
 #rack {
     padding-top: 0px;
