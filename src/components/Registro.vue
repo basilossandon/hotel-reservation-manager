@@ -3,16 +3,15 @@
     <el-col :span="8">
       <el-form>
         <el-form-item label="¿Tiene reservacion?">
-        <el-switch v-model="form.switch"></el-switch>
-      </el-form-item>
+          <el-switch v-model="form.switch"></el-switch>
+        </el-form-item>
       </el-form>
       <el-card class="box-card freservas-table">
-        <div
-          slot="header"
-          class="clearfix reservations-table__title"
-        > <p>necesitas buscar tu reserva para hacer el check in </p></div>
+        <div slot="header" class="clearfix reservations-table__title">
+          <p>necesitas buscar tu reserva para hacer el check in</p>
+        </div>
         <el-form>
-          <el-form-item label="Codigo de reserva" >
+          <el-form-item label="Codigo de reserva">
             <el-input v-model="code" :disabled="form.switch==false"></el-input>
             <el-button
               type="primary"
@@ -21,14 +20,35 @@
               size="medium"
               @click="buscar()"
             >Buscar reserva</el-button>
-            <p>consultar fecha(s) de reservacion(es)</p> 
+
+            <el-button
+              type="primary"
+              :disabled="codigo == null"
+              plain
+              size="medium"
+              @click="prueba()"
+            >mostrar mas info de reserva</el-button>
+
+            <p>fecha(s) de reservacion(es)</p>
           </el-form-item>
         </el-form>
 
         <el-table :data="codigo" style="width: 100%">
           <el-table-column prop="start" label="Fecha inicio" width="180"></el-table-column>
           <el-table-column prop="end" label="Fecha de termino" width="180"></el-table-column>
+          <el-table-column prop="roomId" label="# de habitacion" width="80"></el-table-column>
+          <!-- <el-table-column prop="this.capacidad.capacity" label="id habitacion" width="180"></el-table-column> -->
+          <el-table-column fixed="right" label="Operaciones" width="120">
+            <!-- <template slot-scope="scope"> -->
+            <!-- <el-button @click="handleClick" type="text" size="small">Check in en esta habitacion</el-button> -->
+            <!-- <el-button type="text" size="small">Editar</el-button> -->
+            <!-- </template> -->
+          </el-table-column>
         </el-table>
+
+        <!-- <el-table :data="capacidad" style="width: 100%">
+          <el-table-column prop="capacity" label="capacidad" width="180"></el-table-column>
+        </el-table>-->
       </el-card>
     </el-col>
     <el-col :span="16">
@@ -48,8 +68,6 @@
                   <el-input v-model="age" type="number" :min="1" :max="150"></el-input>
                 </el-form-item>
 
-                
-
                 <el-form-item label="Nª Documento">
                   <el-input v-model="documentNumber"></el-input>
                 </el-form-item>
@@ -64,7 +82,19 @@
                   </el-select>
                 </el-form-item>
 
-                <el-button type="primary" plain size="medium" @click="postRegistro" :disabled="(form.switch==false)">Guardar check-in</el-button>
+                <el-button
+                  type="primary"
+                  plain
+                  size="medium"
+                  @click="postRegistro"
+                  :disabled="(form.switch==false)"
+                >Guardar check-in</el-button>
+                <el-alert v-if="showButton"
+                        title="habitaciones"
+                        type="success"
+                        :description="anuncio">
+                        
+                        </el-alert>
                 <!-- <el-form-item label="tipo de documento">
                                 <el-select v-model="documentType">
                                     <el-option
@@ -77,7 +107,6 @@
                 </el-form-item>-->
               </el-col>
               <el-col :span="12">
-                
                 <el-form-item label="Habitacion">
                   <el-input v-model="room_id" :disabled=" (form.switch == true)"></el-input>
                 </el-form-item>
@@ -104,8 +133,13 @@
                   ></el-date-picker>
                 </el-form-item>
 
+                <!-- <el-button  type="primary" plain size="medium" @click="guardarRegistro()"  >Guardar Registro</el-button>  -->
+
                 
-                <!-- <el-button  type="primary" plain size="medium" @click="guardarRegistro()"  >Guardar Registro</el-button> -->
+                
+
+                
+                
               </el-col>
             </el-row>
           </el-form>
@@ -121,20 +155,12 @@ import moment from "moment";
 import "moment/locale/es";
 import json from "../assets/json/nacionalidad.json";
 
-// function makeid(length) {
-//   var result = "";
-//   var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-//   var charactersLength = characters.length;
-//   for (var i = 0; i < length; i++) {
-//     result += characters.charAt(Math.floor(Math.random() * charactersLength));
-//   }
-//   return result;
-// }
-
 export default {
   data() {
     return {
       origen: json,
+      capacidad: [],
+      anuncio: "",
       id_reservation: null,
       country: "",
       documentType: "",
@@ -146,10 +172,11 @@ export default {
       end: null,
       registro: "",
       code: null,
-      codigo: [],
-      form:{
+      codigo: null,
+      form: {
         switch: true
       },
+      showButton: false,
       opcionDocumento: [
         {
           valor: "Cedula",
@@ -191,7 +218,14 @@ export default {
       return moment(date).format("dddd DD MMMM");
     },
 
+    busqueda(){
+      this.buscar();
+      this.prueba();
+    },
+
     buscar() {
+      var random = makeid(10);
+      console.log(random);
       var direc = this.code;
       axios({
         method: "POST",
@@ -205,7 +239,7 @@ export default {
         }
       })
         .then(response => {
-          //  console.log(response.data);
+          console.log(response.data);
           this.codigo = response.data;
 
           //  let respuesta = response.data;
@@ -233,6 +267,8 @@ export default {
           // ;
         })
         .catch(error => {});
+
+        
     },
 
     postRegistro() {
@@ -259,21 +295,73 @@ export default {
             message: "Se ha registrado exitosamente",
             type: "success"
           });
-          this.code = null,
-          this.name = '',
-          this.age = null,
-          this.documentNumber = null,
-          this.country=''
+          (this.code = null),
+            (this.name = ""),
+            (this.age = null),
+            (this.documentNumber = null),
+            (this.country = ""),
+            (this.codigo = null);
         })
         .catch(error => {
-          //   this.$notify.error({
-          //     title: "Error",
-          //     message: "Ha ocurrido un error al intentar realizar el registro"
-          //   })
+          this.$notify.error({
+            title: "Error",
+            message:
+              "Ha ocurrido un error al intentar realizar el check in primero busca tu reserva y luego haces check in"
+          });
         });
+        
+    },
+    prueba() {
+      console.log(this.codigo[0].id);
+      let size = this.codigo.length;
+      console.log(size);
+
+      // for (var key=0; key<size; ++key) {
+      for (let i in this.codigo) {
+        // var direc = this.code;
+        axios({
+          method: "GET",
+
+          url: "http://157.230.12.110:8080/api/rooms/" + this.codigo[i].roomId,
+          data: {},
+          config: {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        })
+          .then(response => {
+            // console.log(response.data);
+            this.capacidad = response.data;
+            console.log(this.codigo[i].roomId);
+            console.log(this.capacidad);
+
+            this.anuncio +=
+              "La habitacion " +
+              this.codigo[i].roomId +
+              " es " +
+              this.capacidad.type +
+              " numero de personas a registrar: " +
+              this.capacidad.capacity + ". //    "
+              ;
+
+              this.showButton = true;
+          })
+          .catch(error => {});
+      }
     }
   }
 };
+
+function makeid(length) {
+  var result = "";
+  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 </script>
 
 
@@ -282,9 +370,12 @@ export default {
 .right {
   font-family: "Avenir", Helvetica, Arial, sans-serif !important;
 }
+.el-alert{
+    width: 64vh;
+}
 .registro-table,
 .registro-form {
-  height: 120vh;
+  height: 80vh;
 }
 .registro-table > .el-card__body {
   padding-top: 0px;
