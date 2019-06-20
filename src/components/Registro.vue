@@ -45,7 +45,7 @@
                 </el-form-item>
 
                 <el-form-item label="Edad">
-                  <el-input v-model="age" type="number" :min="1"></el-input>
+                  <el-input v-model="age" type="number" :min="1" :max="150"></el-input>
                 </el-form-item>
 
                 
@@ -259,6 +259,11 @@ export default {
             message: "Se ha registrado exitosamente",
             type: "success"
           });
+          this.code = null,
+          this.name = '',
+          this.age = null,
+          this.documentNumber = null,
+          this.country=''
         })
         .catch(error => {
           //   this.$notify.error({
