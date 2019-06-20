@@ -1,5 +1,36 @@
 <template>
   <el-row :gutter="40">
+    <el-col :span="8">
+      <el-form>
+        <el-form-item label="¿Tiene reservacion?">
+        <el-switch v-model="form.switch"></el-switch>
+      </el-form-item>
+      </el-form>
+      <el-card class="box-card freservas-table">
+        <div
+          slot="header"
+          class="clearfix reservations-table__title"
+        > <p>necesitas buscar tu reserva para hacer el check in </p></div>
+        <el-form>
+          <el-form-item label="Codigo de reserva" >
+            <el-input v-model="code" :disabled="form.switch==false"></el-input>
+            <el-button
+              type="primary"
+              :disabled="form.switch==false"
+              plain
+              size="medium"
+              @click="buscar()"
+            >Buscar reserva</el-button>
+            <p>consultar fecha(s) de reservacion(es)</p> 
+          </el-form-item>
+        </el-form>
+
+        <el-table :data="codigo" style="width: 100%">
+          <el-table-column prop="start" label="Fecha inicio" width="180"></el-table-column>
+          <el-table-column prop="end" label="Fecha de termino" width="180"></el-table-column>
+        </el-table>
+      </el-card>
+    </el-col>
     <el-col :span="16">
       <el-card class="box-card registro-form">
         <div slot="header" class="clearfix registro-form__title">Formulario de check in</div>
@@ -7,7 +38,7 @@
           <el-form ref="form" label-position="left" label-width="140px">
             <el-row :gutter="30">
               <el-col :span="12">
-                <div class="form-title">Datos del cliente </div>
+                <div class="form-title">Datos del cliente</div>
 
                 <el-form-item label="Nombre">
                   <el-input v-model="name" type="text"></el-input>
@@ -17,22 +48,8 @@
                   <el-input v-model="age" type="number" :min="1"></el-input>
                 </el-form-item>
 
-                <el-form-item label="Habitacion">
-                  <el-input v-model="room_id" :disabled=" (code != null)"></el-input>
-                </el-form-item>
+                
 
-                <!-- <el-form-item label="tipo de documento">
-                                <el-select v-model="documentType">
-                                    <el-option
-                                    v-for="opcion in opcionDocumento"
-                                    :key="opcion.valor"
-                                    :label="opcion.etiqeta"
-                                    :value="opcion.etiqueta">
-                                    </el-option>
-                                </el-select>
-                </el-form-item>-->
-              </el-col>
-              <el-col :span="12">
                 <el-form-item label="Nª Documento">
                   <el-input v-model="documentNumber"></el-input>
                 </el-form-item>
@@ -46,6 +63,25 @@
                     ></el-option>
                   </el-select>
                 </el-form-item>
+
+                <el-button type="primary" plain size="medium" @click="postRegistro" :disabled="(form.switch==false)">Guardar check-in</el-button>
+                <!-- <el-form-item label="tipo de documento">
+                                <el-select v-model="documentType">
+                                    <el-option
+                                    v-for="opcion in opcionDocumento"
+                                    :key="opcion.valor"
+                                    :label="opcion.etiqeta"
+                                    :value="opcion.etiqueta">
+                                    </el-option>
+                                </el-select>
+                </el-form-item>-->
+              </el-col>
+              <el-col :span="12">
+                
+                <el-form-item label="Habitacion">
+                  <el-input v-model="room_id" :disabled=" (form.switch == true)"></el-input>
+                </el-form-item>
+
                 <el-form-item label="Fecha de Inicio">
                   <el-date-picker
                     id="startPicker"
@@ -54,7 +90,7 @@
                     type="date"
                     format="MM/dd/yyyy"
                     :picker-options="startPickerOptions"
-                    :disabled=" (code != null)"
+                    :disabled="form.switch==true"
                   ></el-date-picker>
                 </el-form-item>
                 <el-form-item label="Fecha de Salida">
@@ -63,36 +99,17 @@
                     :editable="false"
                     type="date"
                     format="MM/dd/yyyy"
-                    :disabled="start == null"
+                    :disabled="form.switch==true"
                     :picker-options="endPickerOptions"
                   ></el-date-picker>
                 </el-form-item>
 
-                <el-button type="primary" plain size="medium" @click="postRegistro">Guardar check-in</el-button>
+                
                 <!-- <el-button  type="primary" plain size="medium" @click="guardarRegistro()"  >Guardar Registro</el-button> -->
               </el-col>
             </el-row>
           </el-form>
         </el-main>
-      </el-card>
-    </el-col>
-    <el-col :span="8">
-      <el-card class="box-card freservas-table">
-        <div slot="header" class="clearfix reservations-table__title">
-          consultar fecha de reservaciones 
-        </div>
-        <el-form>
-          <el-form-item label="Id reserva">
-            <el-input v-model="code"></el-input>
-            <el-button type="primary" plain size="medium" @click="buscar()">Buscar reserva</el-button>
-          </el-form-item>
-        </el-form>
-
-
-        <el-table :data="codigo" style="width: 100%">
-          <el-table-column prop="start" label="Fecha inicio" width="180"></el-table-column>
-          <el-table-column prop="end" label="Fecha de termino" width="180"></el-table-column>
-        </el-table>
       </el-card>
     </el-col>
   </el-row>
@@ -118,7 +135,7 @@ export default {
   data() {
     return {
       origen: json,
-      id: null,
+      id_reservation: null,
       country: "",
       documentType: "",
       documentNumber: "",
@@ -127,11 +144,12 @@ export default {
       name: "",
       start: null,
       end: null,
-
       registro: "",
       code: null,
-      codigo: null,
-
+      codigo: [],
+      form:{
+        switch: true
+      },
       opcionDocumento: [
         {
           valor: "Cedula",
@@ -187,30 +205,41 @@ export default {
         }
       })
         .then(response => {
-          console.log(response.data);
-        //   this.codigo = response.data;
+          //  console.log(response.data);
+          this.codigo = response.data;
 
-             this.codigo = [
-                 {
-                     start: response.data[0].start,
-                     end: response.data[0].end,
-                     id: response.data[0].id
-                 }
-             ]
-                         console.log("codigo", this.codigo);
-                         console.log(this.codigo[0].id);
+          //  let respuesta = response.data;
+          // console.log(respuesta);
+
+          // let largo = response.data.length;
+
+          // for(var i=0; i=largo; i++){
+          //     // respuesta[i];
+          //     console.log(respuesta[i]);
+          // }
+
+          // console.log(this.codigo);
+          // response.data.forEach(function(element) {
+          //     let aux  = [
+          //               start: element.start,
+          //               end: element.end,
+          //               id: element.id
+          //     ]
+
+          //       console.log(element);
+          //       this.codigo.push(aux[element]);
+          // })
+          // console.log(this.codigo);
+          // ;
         })
         .catch(error => {});
     },
 
     postRegistro() {
-
-
       axios({
         method: "POST",
         url: "http://157.230.12.110:8080/api/members",
         data: {
-
           age: this.age,
           country: this.country,
           documentNumber: this.documentNumber,
@@ -225,17 +254,17 @@ export default {
       })
         .then(response => {
           console.log(response);
-        //   this.$notify({
-        //     title: "Reservación Creada",
-        //     message: "Se ha registrado exitosamente",
-        //     type: "success"
-        //   })
+          this.$notify({
+            title: "check in guardado",
+            message: "Se ha registrado exitosamente",
+            type: "success"
+          });
         })
-        .catch(error =>{
-        //   this.$notify.error({
-        //     title: "Error",
-        //     message: "Ha ocurrido un error al intentar realizar el registro"
-        //   })
+        .catch(error => {
+          //   this.$notify.error({
+          //     title: "Error",
+          //     message: "Ha ocurrido un error al intentar realizar el registro"
+          //   })
         });
     }
   }
