@@ -193,16 +193,13 @@ export default {
             ];
             if (this.start && this.end) {
                 this.rackRooms.forEach(room => {
-                    console.log("Room to search: " + room.id);
                     var isTaken = false;
                     var date = moment(this.start);
                     var end = moment(this.end);
                     while (date <= end) {
-                    console.log("Check: " + this.format(date));
                         try {
                             isTaken = this.rackDictionary[room.id][this.format(date)];
                             if (isTaken) {
-                                console.log("Is taken");
                                 break;
                             }
                         }
@@ -213,7 +210,6 @@ export default {
                     }
     
                     if (!isTaken) {
-                        console.log(" => Room " + room.id + ' is not taken');
                         let isReservated = false;
                         this.postRooms.forEach(postRoom => {
                             if (room.id == postRoom) {
@@ -266,10 +262,31 @@ export default {
     methods: {
         addRoom() {
             if (this.checkInName && this.documentNumber && this.email) {
-                this.postRooms.push(this.roomId);
-                this.postRooms = this.postRooms.sort();
-                this.postDates.push([this.start, this.end]);
-                this.roomId = null;
+                var check = this.email.split("@");
+                console.log(check);
+                if (check.length > 1) {
+                    var secondCheck = check[1].split(".");
+                    if (secondCheck.length > 1) {
+                        this.postRooms.push(this.roomId);
+                        this.postRooms = this.postRooms.sort();
+                        this.postDates.push([this.start, this.end]);
+                        this.roomId = null;
+                    }
+                    else {
+                        this.$message({
+                    showClose: true,
+                    message: 'Debe ingresar un correo válido',
+                    type: 'error'
+                }); 
+                    }
+                }
+                else {
+                    this.$message({
+                    showClose: true,
+                    message: 'Debe ingresar un correo válido',
+                    type: 'error'
+                }); 
+                }
             }
             else {
                 this.$message({
@@ -334,7 +351,7 @@ export default {
                     .catch(error => {
                         this.$notify.error({
                             title: "Error",
-                            message: "Ha ocurrido un error al intentar realizar la reserva."
+                            message: "Ha ocurrido el siguiente error al intentar reservar."
                         });
                     });
                 }
