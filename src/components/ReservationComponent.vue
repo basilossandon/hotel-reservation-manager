@@ -263,7 +263,6 @@ export default {
         addRoom() {
             if (this.checkInName && this.documentNumber && this.email) {
                 var check = this.email.split("@");
-                console.log(check);
                 if (check.length > 1) {
                     var secondCheck = check[1].split(".");
                     if (secondCheck.length > 1) {
@@ -291,7 +290,7 @@ export default {
             else {
                 this.$message({
                     showClose: true,
-                    message: 'Debe ingresar los datos personales del cliente  ',
+                    message: 'Debe ingresar los datos personales del cliente',
                     type: 'error'
                 });
             }

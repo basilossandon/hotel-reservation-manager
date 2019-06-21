@@ -5,7 +5,7 @@
         <el-card class="box-card" id="rack-box" v-loading="!rackDataReady">
           <div slot="header" class="clearfix reservations-form__title">
             Rack
-          </div>
+          </div> 
           <el-row>
             <el-col :span="3">
               <div class="rackSideBar">
@@ -59,7 +59,7 @@
         <el-table
             v-loading="!rackDataReady"
             :data="reservations"
-            height="300"
+            height="250"
             >
             <el-table-column
             fixed
@@ -110,7 +110,7 @@ import ReservationComponent from './ReservationComponent.vue'
           days: [],
           reservations: [],
           rooms: [],
-          dictionary: {}
+          dictionary: {},
       }
     },
     components: {
@@ -122,6 +122,11 @@ import ReservationComponent from './ReservationComponent.vue'
     },
     mounted() {
         document.getElementById('scrollable').scrollLeft =  880;
+    },
+    watch: {
+      lastReservation: function(value) {
+        console.log('Llegó una nueva reservación');
+      }
     },
     methods: {
       handleReservation(reservationData) {

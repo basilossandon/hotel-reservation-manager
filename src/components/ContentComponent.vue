@@ -24,9 +24,19 @@ export default {
   props: [
     'keyForDisplay'
   ],
+  data() {
+    return {
+      lastReservation: null
+    }
+  },
   created() {
 
-  }
+  },
+  // methods: {
+  //   handleDirectReservation(reservation) {
+  //     this.lastReservation = reservation;
+  //   }
+  // }
 }
 </script>
 
