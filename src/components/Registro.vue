@@ -37,18 +37,10 @@
           <el-table-column prop="start" label="Fecha inicio" width="180"></el-table-column>
           <el-table-column prop="end" label="Fecha de termino" width="180"></el-table-column>
           <el-table-column prop="roomId" label="# de habitacion" width="80"></el-table-column>
-          <!-- <el-table-column prop="this.capacidad.capacity" label="id habitacion" width="180"></el-table-column> -->
-          <el-table-column fixed="right" label="Operaciones" width="120">
-            <!-- <template slot-scope="scope"> -->
-            <!-- <el-button @click="handleClick" type="text" size="small">Check in en esta habitacion</el-button> -->
-            <!-- <el-button type="text" size="small">Editar</el-button> -->
-            <!-- </template> -->
-          </el-table-column>
+          <el-table-column prop="id" label="id de reserva" width="80"></el-table-column>
         </el-table>
 
-        <!-- <el-table :data="capacidad" style="width: 100%">
-          <el-table-column prop="capacity" label="capacidad" width="180"></el-table-column>
-        </el-table>-->
+        
       </el-card>
     </el-col>
     <el-col :span="16">
@@ -59,6 +51,18 @@
             <el-row :gutter="30">
               <el-col :span="12">
                 <div class="form-title">Datos del cliente</div>
+
+                <el-form-item label="Elegir id de reserva para check in ">
+                  <el-select v-model="habitacion" :disabled="codigo == null">
+                    <el-option
+                      v-for="item in codigo"
+                      :key="item.codigo"
+                      :label="item.id"
+                      :value="item.id"
+                      
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
 
                 <el-form-item label="Nombre">
                   <el-input v-model="name" type="text"></el-input>
@@ -133,7 +137,7 @@
                   ></el-date-picker>
                 </el-form-item>
 
-                <!-- <el-button  type="primary" plain size="medium" @click="guardarRegistro()"  >Guardar Registro</el-button>  -->
+                 <el-button  :disabled="form.switch==true" type="primary" plain size="medium" @click="guardarRegistro() "  >Guardar Registro</el-button>  
 
                 
                 
@@ -160,6 +164,7 @@ export default {
     return {
       origen: json,
       capacidad: [],
+      habitacion: null,
       anuncio: "",
       id_reservation: null,
       country: "",
@@ -218,9 +223,8 @@ export default {
       return moment(date).format("dddd DD MMMM");
     },
 
-    busqueda(){
-      this.buscar();
-      this.prueba();
+    guardarRegistro(){
+
     },
 
     buscar() {
@@ -242,29 +246,7 @@ export default {
           console.log(response.data);
           this.codigo = response.data;
 
-          //  let respuesta = response.data;
-          // console.log(respuesta);
-
-          // let largo = response.data.length;
-
-          // for(var i=0; i=largo; i++){
-          //     // respuesta[i];
-          //     console.log(respuesta[i]);
-          // }
-
-          // console.log(this.codigo);
-          // response.data.forEach(function(element) {
-          //     let aux  = [
-          //               start: element.start,
-          //               end: element.end,
-          //               id: element.id
-          //     ]
-
-          //       console.log(element);
-          //       this.codigo.push(aux[element]);
-          // })
-          // console.log(this.codigo);
-          // ;
+         
         })
         .catch(error => {});
 
@@ -280,7 +262,7 @@ export default {
           country: this.country,
           documentNumber: this.documentNumber,
           name: this.name,
-          reservationId: this.codigo[0].id
+          reservationId: this.habitacion
         },
         config: {
           headers: {
@@ -299,8 +281,8 @@ export default {
             (this.name = ""),
             (this.age = null),
             (this.documentNumber = null),
-            (this.country = ""),
-            (this.codigo = null);
+            (this.country = "")
+            
         })
         .catch(error => {
           this.$notify.error({
@@ -375,7 +357,7 @@ function makeid(length) {
 }
 .registro-table,
 .registro-form {
-  height: 80vh;
+  height: 90vh;
 }
 .registro-table > .el-card__body {
   padding-top: 0px;
