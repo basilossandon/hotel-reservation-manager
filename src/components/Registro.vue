@@ -387,6 +387,32 @@ export default {
           this.searchReservations();
           this.showConfirm = false;
           this.membersReady = -1;
+          
+          this.names = {
+            first: '',
+            second: '',
+            third: ''
+          };
+
+          this.code = null;
+
+          this.documents = {
+            first: '',
+            second: '',
+            third: ''
+          };
+
+          this.countries = {
+            first: '',
+            second: '',
+            third: ''
+          };
+
+          this.ages = {
+            first: '',
+            second: '',
+            third: ''
+          };
       }
     },
     start: function (value) {
