@@ -25,7 +25,7 @@
                   <el-form-item label="Código">
                     <el-input v-model="code" size="small"></el-input>
                   </el-form-item>
-                  <el-button type="primary" size="small" @click="searchReservations()" icon="el-icon-check">Confirmar</el-button>
+                  <el-button class="switchButton" :disabled="!showBB" type="success" size="small" @click="searchReservations()" icon="el-icon-check">Confirmar</el-button>
               </el-col>
               <el-col v-if="!form.switch" :span="24">
                 <el-form-item label="Nombre">
@@ -71,8 +71,8 @@
                       </el-option-group>
                   </el-select>
                 </el-form-item>
-                <el-button class="reservationButton" type="primary" plain size="mini" @click="addRoom()" icon="el-icon-circle-plus" :disabled="roomId == null">Añadir Habitación</el-button>
-                <el-button class="reservationButton" type="success" size="mini" @click="postReservation()" icon="el-icon-check" :disabled="postRooms.length == 0">Confirmar reserva</el-button>
+                <el-button class="reservationButton" type="primary" plain size="small" @click="addRoom()" icon="el-icon-circle-plus" :disabled="roomId == null">Añadir Habitación</el-button>
+                <el-button class="reservationButton" type="success" size="small" @click="postReservation()" icon="el-icon-check" :disabled="postRooms.length == 0">Confirmar reserva</el-button>
               </el-col>
             </el-row>
           </el-form>
@@ -313,6 +313,7 @@ export default {
       showConfirm: false,
       activeName: '1',
       membersReady: -1,
+      showBB: false,
 
       nations: json,
       capacidad: [],
@@ -378,6 +379,11 @@ export default {
     membersReady: function(value) {
       if (value == 0) {
           console.log("all ready");
+          this.$notify({
+              title: "Huéspedes asignados",
+              message: "Se han asignado correctamente los huéspedes a la reservación",
+              type: "success"
+          });
           this.searchReservations();
           this.showConfirm = false;
           this.membersReady = -1;
@@ -401,8 +407,13 @@ export default {
         }
     },
     code: function(value) {
-      if (this.searchCode) {
-        this.searchReservations();
+      if (value != null) {
+        if (value.length < 10) {
+          this.showBB = false;
+        }
+        if (value.length > 9) {
+          this.showBB = true;
+        }
       }
     },
   },
@@ -607,7 +618,13 @@ export default {
           console.log('new reservations');
           console.log(response.data);
         })
-        .catch( error => {});
+        .catch( error => {
+          this.$notify({
+              title: "Reservación no encontrada",
+              message: "El código ingresado no existe",
+              type: "error"
+          });
+        });
     },
     updateDictionary() {
         this.reservations.forEach(reservation => {
@@ -715,47 +732,6 @@ export default {
         }
         return result
     },
-
-    postRegistro() {
-      axios({
-        method: "POST",
-        url: "http://157.230.12.110:8080/api/members",
-        data: {
-          age: this.age,
-          country: this.country,
-          documentNumber: this.documentNumber,
-          name: this.name,
-          reservationId: this.habitacion
-        },
-        config: {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      })
-        .then(response => {
-          console.log(response);
-          this.$notify({
-            title: "check in guardado",
-            message: "Se ha registrado exitosamente",
-            type: "success"
-          });
-          // (this.code = null),
-            (this.name = ""),
-            (this.age = null),
-            (this.documentNumber = null),
-            (this.country = "")
-            
-        })
-        .catch(error => {
-          this.$notify.error({
-            title: "Error",
-            message:
-              "Ha ocurrido un error al intentar realizar el check in primero busca tu reserva y rellena los camposd de datos y luego haces check in"
-          });
-        });
-        
-    }
   }
 };
 
@@ -812,6 +788,10 @@ function makeid(length) {
 .form-size {
   height: 85vh;
 }
+.reservationButton {
+  margin-top:2vh;
+  margin-left:2vh;
+}
 /* .membersPersonalDataForm {
   height: 30vh;
 } */
@@ -836,5 +816,9 @@ function makeid(length) {
 }
 .el-form-item {
   margin-bottom: 5px !important;
+}
+.switchButton {
+  margin-left: 28.2vh;
+  margin-top:2vh;
 }
 </style>

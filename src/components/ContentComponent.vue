@@ -42,8 +42,7 @@ export default {
 
 <style>
 .content, .reservations {
-  background-color: #ECEEF7;
-  background-color: white;
+  background-color: #f9f9f9;
 }
 .el-card, .el-message {
     border-radius: 6px !important;
