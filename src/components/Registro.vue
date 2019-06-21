@@ -12,12 +12,20 @@
         </div>
         <el-form>
           <el-form-item label="Codigo de reserva">
-            <el-input v-model="code" :disabled="form.switch==false"></el-input>
+            <el-button
+              type="primary"
+              :disabled="this.code == null"
+              plain
+              size="medium"
+              @click="nuevaBusqueda()"
+            >Nueva busqueda</el-button>
+            <el-input v-model="code" :disabled="form.switch==false || this.codigo != null"></el-input>
             <el-button
               type="primary"
               :disabled="form.switch==false"
               plain
               size="medium"
+              
               @click="buscar()"
             >Buscar reserva</el-button>
 
@@ -36,8 +44,8 @@
         <el-table :data="codigo" style="width: 100%">
           <el-table-column prop="start" label="Fecha inicio" width="180"></el-table-column>
           <el-table-column prop="end" label="Fecha de termino" width="180"></el-table-column>
-          <el-table-column prop="roomId" label="# de habitacion" width="80"></el-table-column>
-          <el-table-column prop="id" label="id de reserva" width="80"></el-table-column>
+          <el-table-column prop="roomId" label="# de habitacion" width="180"></el-table-column>
+          <el-table-column prop="id" label="id de reserva" width="180"></el-table-column>
         </el-table>
 
         
@@ -96,7 +104,8 @@
                 <el-alert v-if="showButton"
                         title="habitaciones"
                         type="success"
-                        :description="anuncio">
+                        :description="anuncio"
+                        :closable="false">
                         
                         </el-alert>
                 <!-- <el-form-item label="tipo de documento">
@@ -225,11 +234,16 @@ export default {
 
     guardarRegistro(){
 
+    }, 
+
+    nuevaBusqueda(){
+        this.code= null;
+        this.codigo= null;
+        this.anuncio= '';
     },
 
     buscar() {
-      var random = makeid(10);
-      console.log(random);
+      
       var direc = this.code;
       axios({
         method: "POST",
@@ -248,7 +262,14 @@ export default {
 
          
         })
-        .catch(error => {});
+        .catch(error => {
+          this.$notify.error({
+            title: "Error",
+            message:
+              "Ha ocurrido un error al intentar buscar ingresa un codigo"
+          });
+          this.codigo= null
+        });
 
         
     },
@@ -277,7 +298,7 @@ export default {
             message: "Se ha registrado exitosamente",
             type: "success"
           });
-          (this.code = null),
+          // (this.code = null),
             (this.name = ""),
             (this.age = null),
             (this.documentNumber = null),
@@ -288,12 +309,13 @@ export default {
           this.$notify.error({
             title: "Error",
             message:
-              "Ha ocurrido un error al intentar realizar el check in primero busca tu reserva y luego haces check in"
+              "Ha ocurrido un error al intentar realizar el check in primero busca tu reserva y rellena los camposd de datos y luego haces check in"
           });
         });
         
     },
     prueba() {
+      this.anuncio= "";
       console.log(this.codigo[0].id);
       let size = this.codigo.length;
       console.log(size);
