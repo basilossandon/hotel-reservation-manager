@@ -5,7 +5,7 @@
           <RackComponent/>
       </div>
       <div class="Registro" v-if="keyForDisplay == 2">
-          <Registro/>
+          <RegisterComponent/>
       </div>
     </el-main>
   </div>
@@ -13,13 +13,13 @@
 
 <script>
 import RackComponent from './RackComponent.vue';
-import Registro from './Registro.vue';
+import RegisterComponent from './RegisterComponent.vue';
 
 export default {
   name: 'ContentComponent',
   components: {
     RackComponent,
-    Registro
+    RegisterComponent
   },
   props: [
     'keyForDisplay'
@@ -32,11 +32,6 @@ export default {
   created() {
 
   },
-  // methods: {
-  //   handleDirectReservation(reservation) {
-  //     this.lastReservation = reservation;
-  //   }
-  // }
 }
 </script>
 

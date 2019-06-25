@@ -434,10 +434,10 @@ export default {
     },
     code: function(value) {
       if (value != null) {
-        if (value.length < 10) {
+        if (value.length < 8) {
           this.showBB = false;
         }
-        if (value.length > 9) {
+        if (value.length > 7) {
           this.showBB = true;
         }
       }
@@ -624,7 +624,6 @@ export default {
     },
     getTitle(reservation) {
       var text = 'Habitación ' + reservation.roomId + " (" + this.rooms[reservation.roomId - 1].type + ")"
-      // text += " desde el " + this.format(reservation.start) + " al " + this.format(reservation.end)
       return text;
     },
     searchReservations() {
@@ -700,7 +699,7 @@ export default {
             }
     },
     postReservation() {
-            var code = this.makeid(10);
+            var code = this.makeid(8);
             for (let i = 0; i < this.postRooms.length; i++) {
                 let start = moment(this.postDates[i][0]);
                 let end = moment(this.postDates[i][1]);
@@ -737,7 +736,6 @@ export default {
                         this.showButton = false;
                         this.code = response.data.code;
                         this.searchCode = true;
-                        // this.$emit('newReservation', response.data);
                     })
                     .catch(error => {
                         this.$notify.error({
@@ -846,5 +844,8 @@ function makeid(length) {
 .switchButton {
   margin-left: 28.2vh;
   margin-top:2vh;
+}
+.register {
+  /* color: #303133 */
 }
 </style>

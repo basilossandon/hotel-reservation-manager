@@ -39,7 +39,10 @@
                   <div class="roomStates" :id="day" v-on:scroll="syncScrollsByRack(day)">
                     <el-row>
                       <el-col class="roomState" v-bind:id="index" v-bind:key="index" v-for="(room, index) in rooms">
-                        <p class="busyText" v-if="isBusy(room, day)"></p>
+                        <div v-if="isBusy(room, day)">
+                          <p class="memberText" v-if="haveMembers(room, day)">
+                          <p class="busyText" v-else></p>
+                        </div>
                         <p class="freeText" v-else>vacante</p>
                       </el-col>
                     </el-row>
@@ -57,35 +60,55 @@
             Últimas reservaciones
         </div>
         <el-table
-            v-loading="!rackDataReady"
-            :data="reservations"
-            height="250"
-            >
-            <el-table-column
-            fixed
-            prop="code"
-            label="Código"
-            width="140">
-            </el-table-column>
-            <el-table-column
-            prop="checkInName"
-            label="Cliente"
-            width="150">
-            </el-table-column>
-            <!-- <el-table-column
-            prop="start"
-            label="Inicio"
-            width="120">
-            </el-table-column>
-            <el-table-column
-            prop="end"
-            label="Término"
-            width="120">
-            </el-table-column> -->
+        v-loading="!rackDataReady"
+        :data="reservations"
+        row-key="id"
+        height="250">
+          <el-table-column
+          fixed
+          prop="code"
+          label="Código"
+          width="100">
+          </el-table-column>
+          <el-table-column
+          prop="checkInName"
+          label="Cliente"
+          width="140">
+          </el-table-column>
+          <el-table-column
+            fixed="right"
+            width="50">
+            <template slot-scope="scope">
+              <el-button size="small" icon="el-icon-info" class="reservation-info__button" @click="seeReservationInfo(scope.row.id)"></el-button>
+            </template>
+          </el-table-column>
         </el-table>
     </el-card>
   </el-col>
 </el-row>
+<el-dialog
+  v-if="dialogVisible"
+  :visible.sync="dialogVisible"
+  width="27%">
+  <p class="reservationSelected-title"><b>Reserva {{reservationSelected.code}}</b></p>
+  <ul>
+    <li>
+      Nombre: {{reservationSelected.checkInName}}
+    </li>
+    <li>
+      Nº Documento: {{reservationSelected.documentNumber}}
+    </li>
+    <li>
+      Habitacion: {{reservationSelected.roomId}} ({{rooms[reservationSelected.roomId].type}})
+    </li>
+    <li>
+      Inicio: {{this.formatAll(reservationSelected.start)}}
+    </li>
+    <li>
+      Término: {{this.formatAll(reservationSelected.end)}}
+    </li>
+  </ul>
+</el-dialog>
 <ReservationComponent :rackRooms="rooms" :rackReservations="reservations" :rackDictionary="dictionary" :rackReady="rackDataReady" @newReservation="handleReservation"/>
 </div>
 </template>
@@ -111,6 +134,9 @@ import ReservationComponent from './ReservationComponent.vue'
           reservations: [],
           rooms: [],
           dictionary: {},
+          members: {},
+          reservationSelected: {},
+          dialogVisible: false,
       }
     },
     components: {
@@ -123,32 +149,43 @@ import ReservationComponent from './ReservationComponent.vue'
     mounted() {
         document.getElementById('scrollable').scrollLeft =  880;
     },
-    watch: {
-      lastReservation: function(value) {
-        console.log('Llegó una nueva reservación');
-      }
-    },
     methods: {
+      seeReservationInfo(id) {
+        this.reservations.forEach(reservation => {
+          if (reservation.id == id) {
+            this.reservationSelected = reservation;
+            this.reservationSelected.title = 'Reserva ' + reservation.code;
+            this.dialogVisible = true;
+            return;
+          }
+        })
+      },
+      haveMembers(room, day) {
+        try {
+          let bool = this.members[room.id][day.format('ddd DD MMMM')];
+          return bool; 
+        } catch (error) {
+          return false;
+        }
+      },
       handleReservation(reservationData) {
         this.reservations.unshift(reservationData);
         this.updateDictionary();
       },
       updateRackData() {
-        var code = 'KZNQLZIV9R';
-          axios.get('http://157.230.12.110:8080/api/rooms').then(response => {
-            this.rooms = response.data
-            axios.get('http://157.230.12.110:8080/api/reservations/')
-            .then(response => {
-              this.reservations = _.reverse(response.data);
-              this.updateDictionary();
-              this.formatReservations();
-              this.rackDataReady = true;
-            });
+        axios.get('http://157.230.12.110:8080/api/rooms').then(response => {
+          this.rooms = response.data
+          axios.get('http://157.230.12.110:8080/api/reservations/')
+          .then(response => {
+            this.reservations = _.reverse(response.data);
+            this.updateDictionary();
+            this.formatReservations();
+            this.rackDataReady = true;
           });
+        });
       },
       updateDictionary() {
         this.reservations.forEach(reservation => {
-
           let actualDay = moment(reservation.start);
           let finalDay = moment(reservation.end);
 
@@ -159,6 +196,15 @@ import ReservationComponent from './ReservationComponent.vue'
             else {
               this.dictionary[reservation.roomId] = {};
               this.dictionary[reservation.roomId][actualDay.format('ddd DD MMMM')] = true;
+            }
+            if (reservation.members.length > 0) {
+              if (this.members[reservation.roomId] != null) {
+                this.members[reservation.roomId][actualDay.format('ddd DD MMMM')] = true;
+              }
+              else {
+                this.members[reservation.roomId] = {};
+                this.members[reservation.roomId][actualDay.format('ddd DD MMMM')] = true;
+              }
             }
             actualDay.add(1, 'day');
           }
@@ -252,7 +298,10 @@ import ReservationComponent from './ReservationComponent.vue'
       },
       format(day) {
         return day.format('ddd DD MMMM');
-      }
+      },
+      formatAll(date){
+            return moment(date).format("dddd DD MMMM");
+        },
     },
   }
 </script>
@@ -286,16 +335,13 @@ import ReservationComponent from './ReservationComponent.vue'
 }
 .busyText {
   height: 19px;
+  background: #FDE2E2;
+}
+.memberText {
   background: #F56C6C;
+  height: 19px;
 }
-.leftBusy {
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-}
-.rightBusy {
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
-}
+
 .freeText {
   color: rgb(244, 244, 245);
   background-color: rgb(244, 244, 245);
@@ -318,6 +364,29 @@ import ReservationComponent from './ReservationComponent.vue'
   white-space: nowrap;
   text-align: left;
   margin-left: 0.2em;
+}
+.reservation-info__button, .reservation-info__button:hover {
+  border: none;
+  background: transparent;
+}
+
+.reservation-info__button > .el-icon-info:before {
+  font-size: 16px !important;
+}
+
+.el-dialog__body {
+  font-size: 15px;
+}
+
+.el-dialog__header {
+  padding: 0;
+}
+
+.el-dialog__body > ul > li {
+  padding-bottom: 0.5vh;
+}
+.reservationSelected-title{
+  margin-bottom: 4vh;
 }
 #rack {
     padding-top: 0px;

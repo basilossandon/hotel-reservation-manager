@@ -309,7 +309,7 @@ export default {
             this.roomsGrouped[index].rooms.push(room.id);
         },
         postReservation() {
-            var code = makeid(10);
+            var code = makeid(8);
             for (let i = 0; i < this.postRooms.length; i++) {
                 let start = moment(this.postDates[i][0]);
                 let end = moment(this.postDates[i][1]);

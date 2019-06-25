@@ -16,9 +16,6 @@ export default {
             activeIndex: '1',
         };
     },
-    props: {
-
-    },
     methods: {
         handleSelect(key, keyPath) {
             this.$emit('notifySelection', key);
