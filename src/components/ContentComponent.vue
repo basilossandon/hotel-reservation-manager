@@ -10,6 +10,9 @@
       <div class="services" v-if="keyForDisplay == 3">
           <ServiceComponent/>
       </div>
+      <div class="checkout" v-if="keyForDisplay == 4">
+          <CheckoutComponent/>
+      </div>
     </el-main>
   </div>
 </template>
@@ -18,13 +21,15 @@
 import RackComponent from './RackComponent.vue';
 import RegisterComponent from './RegisterComponent.vue';
 import ServiceComponent from './ServiceComponent.vue';
+import CheckoutComponent from './CheckoutComponent.vue';
 
 export default {
   name: 'ContentComponent',
   components: {
     RackComponent,
     RegisterComponent,
-    ServiceComponent
+    ServiceComponent,
+    CheckoutComponent
   },
   props: [
     'keyForDisplay'
@@ -41,7 +46,7 @@ export default {
 </script>
 
 <style>
-.content, .reservations {
+.content, .reservations, .services {
   background-color: #f9f9f9;
 }
 .el-card, .el-message {

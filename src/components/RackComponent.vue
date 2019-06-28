@@ -68,12 +68,12 @@
           fixed
           prop="code"
           label="Código"
-          width="100">
+          width="120">
           </el-table-column>
           <el-table-column
           prop="checkInName"
           label="Cliente"
-          width="140">
+          width="120">
           </el-table-column>
           <el-table-column
             fixed="right"

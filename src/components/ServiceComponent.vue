@@ -276,7 +276,7 @@ export default {
             this.postServices.forEach(id => {
                 axios({
                     method: "POST",
-                    url: "http://157.230.12.110:8080/api/" + member.documentNumber + '/service/' + id,
+                    url: "http://157.230.12.110:8080/api/members/" + member.documentNumber + '/service/' + id,
                     data: {
                         id: member.id,
                         idReservation: this.reservationSearched.id,
