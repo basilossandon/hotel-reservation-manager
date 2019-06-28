@@ -130,7 +130,6 @@ export default {
             date: '',
             postRooms: [],
             postDates: [],
-            showButton: false,
             startPickerOptions: {
                 disabledDate(time) {
                     const date  = moment(time.getTime());
@@ -149,7 +148,9 @@ export default {
             },
             errorTitle: '',
             showFieldsError: false,
-            showReservationInfo: false
+            showReservationInfo: false,
+            postsNeeded: -1,
+            reservationCode: ''
         }
     },
     watch: {
@@ -170,6 +171,23 @@ export default {
                 this.roomId = null;
             }
         },
+        postsNeeded: function (value) {
+            if (value == 0) {
+                this.$notify({
+                    title: "Reservación Creada",
+                    message: "Se ha generado la reserva. Su código es: " + this.reservationCode + ".",
+                    type: "success"
+                });
+                this.checkInName = '';
+                this.documentNumber = '';
+                this.email = '';
+                this.start = null;
+                this.postRooms = [];
+                this.postDates = [];
+                this.reservationCode = '';
+                this.postsNeeded = -1;
+            }
+        }
     },
     computed: {
         roomsGrouped: function() {
@@ -261,39 +279,56 @@ export default {
     },
     methods: {
         addRoom() {
-            if (this.checkInName && this.documentNumber && this.email) {
-                var check = this.email.split("@");
-                if (check.length > 1) {
-                    var secondCheck = check[1].split(".");
-                    if (secondCheck.length > 1) {
-                        this.postRooms.push(this.roomId);
-                        this.postRooms = this.postRooms.sort();
-                        this.postDates.push([this.start, this.end]);
-                        this.roomId = null;
+            var alert = '';
+            if (this.checkInName) {
+                if (this.documentNumber) {
+                    var ok = true;
+                    if (this.email) {
+                        var checkAt = this.email.split('@');
+                        if (checkAt.length > 1) {
+                            var checkDot = checkAt[1].split('.');
+                            if (checkDot.length > 1) {
+                                if (checkDot[1].length > 1) {
+                                    this.postRooms.push(this.roomId);
+                                    this.postRooms = this.postRooms.sort();
+                                    this.postDates.push([this.start, this.end]);
+                                    this.roomId = null; 
+                                }
+                                else {
+                                    ok = false;
+                                }
+                            }
+                            else {
+                                ok = false;
+                            }
+                        }
+                        else {
+                            ok = false;
+                        }
                     }
                     else {
-                        this.$message({
-                    showClose: true,
-                    message: 'Debe ingresar un correo válido',
-                    type: 'error'
-                }); 
+                        alert = 'Debes ingresar el correo del cliente';
+                    }
+                    if (!ok) {
+                        alert = 'El correo ingresado no es válido';
                     }
                 }
                 else {
-                    this.$message({
-                    showClose: true,
-                    message: 'Debe ingresar un correo válido',
-                    type: 'error'
-                }); 
+                    alert = 'Debes ingresar el nº de documento del cliente';
                 }
             }
             else {
-                this.$message({
+                alert = 'Debes ingresar el nombre del cliente'
+            }
+
+            if (alert.length > 1) {
+                 this.$message({
                     showClose: true,
-                    message: 'Debe ingresar los datos personales del cliente',
+                    message: alert,
                     type: 'error'
                 });
             }
+
         },
         addRoomsGrouped(room) {
             let index = 0;
@@ -310,6 +345,9 @@ export default {
         },
         postReservation() {
             var code = makeid(8);
+            this.reservationCode = code;
+            this.postsNeeded = this.postRooms.length;
+
             for (let i = 0; i < this.postRooms.length; i++) {
                 let start = moment(this.postDates[i][0]);
                 let end = moment(this.postDates[i][1]);
@@ -333,19 +371,8 @@ export default {
                     }
                     })
                     .then(response => {
-                        this.$notify({
-                            title: "Reservación Creada",
-                            message: "Se ha generado la reserva. Su código es: " + response.data.code + ".",
-                            type: "success"
-                        });
-                        this.checkInName = '';
-                        this.documentNumber = '';
-                        this.email = '';
-                        this.start = null;
-                        this.postRooms = [];
-                        this.postDates = [];
-                        this.showButton = false;
                         this.$emit('newReservation', response.data);
+                        this.postsNeeded -= 1;
                     })
                     .catch(error => {
                         this.$notify.error({
@@ -353,7 +380,7 @@ export default {
                             message: "Ha ocurrido el siguiente error al intentar reservar."
                         });
                     });
-                }
+            }
         },
         format(date){
             return moment(date).format("ddd DD MMMM");
@@ -405,6 +432,7 @@ function makeid(length) {
 .postRoomsInfo {
     background-color: #F5F7FA;
     color: #909399;
+    border: 1px solid #ebeef5;
     border-radius: 6px;
     font-size: 14px;
     height: 32vh;

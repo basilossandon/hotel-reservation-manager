@@ -15,7 +15,7 @@ export default {
   name: 'app',
   data() {
 	return {
-	  contentSelected: 1
+	  contentSelected: 3
 	}
   },
   components: {

@@ -1,6 +1,5 @@
 <template>
 <div class="register">
-  <el-main>
     <el-row :gutter="20">
       <el-col :span="7">
         <el-card class="card-box form-size">
@@ -15,19 +14,19 @@
                 </span>
               </el-col>
               <el-col :span="3" :offset="7">
-                <el-switch v-model="form.switch"></el-switch>
+                <el-switch v-model="switchOn"></el-switch>
               </el-col>
             </el-row>
           </el-form>
           <el-form label-position="left" label-width="120px" class="myForm">
             <el-row>
-              <el-col v-if="form.switch" :span="24">
+              <el-col v-if="switchOn" :span="24">
                   <el-form-item label="Código">
                     <el-input v-model="code" size="small"></el-input>
                   </el-form-item>
                   <el-button class="switchButton" :disabled="!showBB" type="success" size="small" @click="searchReservations()" icon="el-icon-check">Confirmar</el-button>
               </el-col>
-              <el-col v-if="!form.switch" :span="24">
+              <el-col v-if="!switchOn" :span="24">
                 <el-form-item label="Nombre">
                     <el-input v-model="checkInName" size="mini"></el-input>
                 </el-form-item>
@@ -74,6 +73,36 @@
                 <el-button class="reservationButton" type="primary" plain size="small" @click="addRoom()" icon="el-icon-circle-plus" :disabled="roomId == null">Añadir Habitación</el-button>
                 <el-button class="reservationButton" type="success" size="small" @click="postReservation()" icon="el-icon-check" :disabled="postRooms.length == 0">Confirmar reserva</el-button>
               </el-col>
+
+
+
+
+
+              <el-col v-if="!switchOn">
+                <div class="postRoomsInfo">
+                    <el-main>
+                        <div class="reservationInfo__title">
+                            Resumen:
+                        </div>
+                        <div class="reservationInfo__description">
+                            {{reservationInfo}}
+                        </div>
+                        <div class="reservationInfo__rooms">
+                            <div v-for="(room, index) in postRooms" :key="index">
+                                    <el-tag
+                                    :key="room"
+                                    closable
+                                    :disable-transitions="false"
+                                    @close="handleAlertClose(room)">
+                                    {{roomsInfo[index]}}
+                                    </el-tag>
+                            </div>
+                        </div>
+                    </el-main>
+                </div>
+              </el-col>
+
+
             </el-row>
           </el-form>
           <el-row>
@@ -254,7 +283,6 @@
         </el-card>
       </el-col>
     </el-row>
-  </el-main>
 </div>
 </template>
 
@@ -275,6 +303,7 @@ export default {
       postDates: [],
       codeReservations: [],
 
+      reservationsNeeded: -1,
 
       code: '',
       checkInName: '',
@@ -282,26 +311,21 @@ export default {
       start: null,
       end: null,
       roomId: null,
-
-
       names: {
         first: '',
         second: '',
         third: ''
       },
-
       documents: {
         first: '',
         second: '',
         third: ''
       },
-
       countries: {
         first: '',
         second: '',
         third: ''
       },
-
       ages: {
         first: '',
         second: '',
@@ -309,43 +333,14 @@ export default {
       },
 
 
+      nations: json,
       showMembersForm: false,
       showConfirm: false,
       activeName: '1',
       membersReady: -1,
       showBB: false,
-
-      nations: json,
-      capacidad: [],
-      habitacion: null,
-      anuncio: "",
-      id_reservation: null,
-      country: "",
-      documentType: "",
-      room_id: null,
-      age: null,
-      name: "",
-      registro: "",
-      code: null,
-      codigo: null,
-      form: {
-        switch: false
-      },
-      showButton: false,
-      opcionDocumento: [
-        {
-          valor: "Cedula",
-          etiqueta: "Cedula"
-        },
-        {
-          valor: "Pasaporte",
-          etiqueta: "Pasaporte"
-        },
-        {
-          valor: "Otro",
-          etiqueta: "otro"
-        }
-      ],
+      switchOn: false,
+      
       startPickerOptions: {
         disabledDate(time) {
           const date = moment(time.getTime());
@@ -376,9 +371,26 @@ export default {
     });
   },
   watch: {
+    reservationsNeeded: function(value) {
+      if (value == 0) {
+        this.checkInName = '';
+        this.documentNumber = '';
+        this.start = null;
+        this.postRooms = [];
+        this.postDates = [];
+        this.$notify({
+            title: "Reservación Creada",
+            message: "Se ha generado la reserva. Su código es: " + this.code + ".",
+            type: "success"
+        });
+        this.reservationsNeeded = -1;
+        this.switchOn = true;
+        this.codeReservations = [];
+        this.showMembersForm = false;
+      }
+    },
     membersReady: function(value) {
       if (value == 0) {
-          console.log("all ready");
           this.$notify({
               title: "Huéspedes asignados",
               message: "Se han asignado correctamente los huéspedes a la reservación",
@@ -444,6 +456,30 @@ export default {
     },
   },
   computed: {
+    reservationInfo: function() {
+        var text = '';
+        if (this.checkInName) {
+            text += 'Reserva a nombre de ' + this.checkInName;
+            if (this.documentNumber) {
+                text += ', número de documento ' + this.documentNumber + '.';
+                if (this.postRooms.length > 0) {
+                        text += ' Para las siguientes habitaciones:';
+                }
+            } 
+        }
+        return text;
+    },
+    roomsInfo: function() {
+        var texts = [];
+        if (this.checkInName && this.documentNumber) {
+            if (this.postRooms.length > 0) {
+                for(let i = 0; i < this.postRooms.length; i++) {
+                    texts.push("Habitación " + this.postRooms[i] + ' del ' + this.format(this.postDates[i][0]) + ' al ' + this.format(this.postDates[i][1]) + '.');
+                }
+            }
+        }
+        return texts;
+    },
     formatedReservations: function() {
       var res = [];
       this.codeReservations.forEach(reservation => {
@@ -571,6 +607,7 @@ export default {
         this.membersReady = this.getRoomCapacity(reservation.roomId);
 
         for (let i = 0; i < this.getRoomCapacity(reservation.roomId); i++) {
+          var code = this.makeid(8);
           axios({
             method: "POST",
             url: "http://157.230.12.110:8080/api/members",
@@ -579,7 +616,8 @@ export default {
               country: countries[i],
               documentNumber: documents[i],
               name: names[i],
-              reservationId: reservation.id
+              reservationId: reservation.id,
+              code: code
             },
             config: {
               headers: {
@@ -626,6 +664,17 @@ export default {
       var text = 'Habitación ' + reservation.roomId + " (" + this.rooms[reservation.roomId - 1].type + ")"
       return text;
     },
+    makeid(length) {
+      var result = ''
+      var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+      var charactersLength = characters.length
+      for (var i = 0; i < length; i++) {
+          result += characters.charAt(
+              Math.floor(Math.random() * charactersLength)
+          )
+      }
+      return result
+    },
     searchReservations() {
       axios({
           method: "POST",
@@ -640,8 +689,6 @@ export default {
         .then( response => {
           this.codeReservations = response.data;
           this.showMembersForm = true;
-          console.log('new reservations');
-          console.log(response.data);
         })
         .catch( error => {
           this.$notify({
@@ -684,22 +731,34 @@ export default {
       return moment(date).format("dddd DD MMMM");
     },
   addRoom() {
-            if (this.checkInName && this.documentNumber) {
+            if (this.checkInName) {
+              if (this.documentNumber) {
                 this.postRooms.push(this.roomId);
                 this.postRooms = this.postRooms.sort();
                 this.postDates.push([this.start, this.end]);
                 this.roomId = null;
+              }
+              else {
+                this.$message({
+                    showClose: true,
+                    message: 'Debe ingresar el nº de documento del cliente',
+                    type: 'error'
+                });
+              }
             }
             else {
                 this.$message({
                     showClose: true,
-                    message: 'Debe ingresar los datos personales del cliente',
+                    message: 'Debe ingresar el nombre del cliente',
                     type: 'error'
                 });
             }
     },
     postReservation() {
             var code = this.makeid(8);
+
+            this.reservationsNeeded = this.postDates.length;
+
             for (let i = 0; i < this.postRooms.length; i++) {
                 let start = moment(this.postDates[i][0]);
                 let end = moment(this.postDates[i][1]);
@@ -723,19 +782,8 @@ export default {
                     }
                     })
                     .then(response => {
-                        this.$notify({
-                            title: "Reservación Creada",
-                            message: "Se ha generado la reserva. Su código es: " + response.data.code + ".",
-                            type: "success"
-                        });
-                        this.checkInName = '';
-                        this.documentNumber = '';
-                        this.start = null;
-                        this.postRooms = [];
-                        this.postDates = [];
-                        this.showButton = false;
+                      this.reservationsNeeded --;
                         this.code = response.data.code;
-                        this.searchCode = true;
                     })
                     .catch(error => {
                         this.$notify.error({
@@ -756,18 +804,13 @@ export default {
         }
         return result
     },
+    handleAlertClose(room) {
+        let index = this.postRooms.indexOf(room);
+        this.postRooms.splice( index, 1 );
+        this.postDates.splice( index, 1 );
+    },
   }
 };
-
-function makeid(length) {
-  var result = "";
-  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
 </script>
 
 
@@ -784,9 +827,6 @@ function makeid(length) {
   height: 90vh;
 }
 .registro-table > .el-card__body {
-  padding-top: 0px;
-}
-.registro-form > .el-card__body {
   padding-top: 0px;
 }
 .el-table__empty-text {
@@ -845,7 +885,24 @@ function makeid(length) {
   margin-left: 28.2vh;
   margin-top:2vh;
 }
-.register {
-  /* color: #303133 */
+.postRoomsInfo {
+  margin-top: 2em;
+    background-color: #F5F7FA;
+    color: #909399;
+    border: 1px solid #ebeef5;
+    border-radius: 6px;
+    font-size: 14px;
+    height: 32vh;
+}
+.reservationInfo__title {
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+.reservationInfo__rooms {
+    height: 16vh;
+    overflow-y: scroll;
+}
+.reservationInfo__description {
+    margin-bottom: 1em;
 }
 </style>

@@ -1,0 +1,47 @@
+       <!-- <el-col :span="14" class="registersTable">
+                <el-card class="card-box registersTable">
+                    <el-table
+                    :data="reservations.filter(data => !search || data.code.toLowerCase().includes(search.toLowerCase()))"
+                    height="335">
+                        <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <p>Estado: {{ props.row.code }}</p>
+                        </template>
+                        </el-table-column>
+                        <el-table-column
+                        label="Código"
+                        prop="code"
+                        width="120"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                        label="Cliente"
+                        prop="checkInName"
+                        width="170">
+                        </el-table-column>
+                        <el-table-column
+                        label="Habitación"
+                        prop="roomId"
+                        width="100">
+                        </el-table-column>
+                        <el-table-column align="right">
+                            <template slot="header" slot-scope="scope">
+                                <el-input
+                                class="search-input"
+                                v-model="search"
+                                size="mini"
+                                placeholder="Buscar código"/>
+                            </template>
+                            <template slot-scope="scope" class="table-buttons">
+                                <el-button
+                                class="margin-button"
+                                size="mini">Ver huéspedes</el-button>
+                                <el-button
+                                class="right-button"
+                                size="mini"
+                                type="danger">Añadir servicio</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-card>
+            </el-col> -->

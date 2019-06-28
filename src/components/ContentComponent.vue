@@ -4,8 +4,11 @@
       <div class="reservations" v-if="keyForDisplay == 1">
           <RackComponent/>
       </div>
-      <div class="Registro" v-if="keyForDisplay == 2">
+      <div class="register" v-if="keyForDisplay == 2">
           <RegisterComponent/>
+      </div>
+      <div class="services" v-if="keyForDisplay == 3">
+          <ServiceComponent/>
       </div>
     </el-main>
   </div>
@@ -14,12 +17,14 @@
 <script>
 import RackComponent from './RackComponent.vue';
 import RegisterComponent from './RegisterComponent.vue';
+import ServiceComponent from './ServiceComponent.vue';
 
 export default {
   name: 'ContentComponent',
   components: {
     RackComponent,
-    RegisterComponent
+    RegisterComponent,
+    ServiceComponent
   },
   props: [
     'keyForDisplay'

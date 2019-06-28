@@ -61,7 +61,7 @@
         </div>
         <el-table
         v-loading="!rackDataReady"
-        :data="reservations"
+        :data="reversedReservations"
         row-key="id"
         height="250">
           <el-table-column
@@ -99,7 +99,7 @@
       Nº Documento: {{reservationSelected.documentNumber}}
     </li>
     <li>
-      Habitacion: {{reservationSelected.roomId}} ({{rooms[reservationSelected.roomId].type}})
+      Habitacion: {{reservationSelected.roomId}} ({{rooms[reservationSelected.roomId - 1].type}})
     </li>
     <li>
       Inicio: {{this.formatAll(reservationSelected.start)}}
@@ -149,6 +149,11 @@ import ReservationComponent from './ReservationComponent.vue'
     mounted() {
         document.getElementById('scrollable').scrollLeft =  880;
     },
+    computed: {
+      reversedReservations: function() {
+        return _.orderBy(this.reservations, ['id'], ['desc']);
+      }
+    },
     methods: {
       seeReservationInfo(id) {
         this.reservations.forEach(reservation => {
@@ -169,7 +174,7 @@ import ReservationComponent from './ReservationComponent.vue'
         }
       },
       handleReservation(reservationData) {
-        this.reservations.unshift(reservationData);
+        this.reservations.push(reservationData);
         this.updateDictionary();
       },
       updateRackData() {
@@ -177,9 +182,8 @@ import ReservationComponent from './ReservationComponent.vue'
           this.rooms = response.data
           axios.get('http://157.230.12.110:8080/api/reservations/')
           .then(response => {
-            this.reservations = _.reverse(response.data);
+            this.reservations = response.data;
             this.updateDictionary();
-            this.formatReservations();
             this.rackDataReady = true;
           });
         });
@@ -279,8 +283,7 @@ import ReservationComponent from './ReservationComponent.vue'
           this.len++;
         }
       },
-      
-
+  
       formatReservations(){
         this.reservations.forEach(reservation => {
           reservation.start = moment(reservation.start).format("ddd DD MMMM");
@@ -376,6 +379,7 @@ import ReservationComponent from './ReservationComponent.vue'
 
 .el-dialog__body {
   font-size: 15px;
+  margin-left: 5vh;
 }
 
 .el-dialog__header {
@@ -383,10 +387,13 @@ import ReservationComponent from './ReservationComponent.vue'
 }
 
 .el-dialog__body > ul > li {
+  padding-left: 0;
   padding-bottom: 0.5vh;
 }
-.reservationSelected-title{
-  margin-bottom: 4vh;
+
+.el-dialog {
+  border-radius: 8px;
+  height: 28vh;
 }
 #rack {
     padding-top: 0px;
