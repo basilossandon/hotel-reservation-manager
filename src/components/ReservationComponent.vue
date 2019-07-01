@@ -353,7 +353,7 @@ export default {
                 let end = moment(this.postDates[i][1]);
                 axios({
                     method: "POST",
-                    url: "http://157.230.12.110:8080/api/reservations/",
+                    url: "localhost:8080/api/reservations/",
                     data: {
                         start: start,
                         end: end,

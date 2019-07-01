@@ -171,9 +171,9 @@ export default {
         }
     },
     created() {
-        axios.get('http://157.230.12.110:8080/api/rooms').then(response => {
+        axios.get('localhost:8080/api/rooms').then(response => {
             this.rooms = response.data;
-            axios.get('http://157.230.12.110:8080/api/services').then(response => {
+            axios.get('localhost:8080/api/services').then(response => {
                 this.services = _.orderBy(response.data, ['id'], ['asc']);
             });
         });
@@ -189,7 +189,7 @@ export default {
 
             axios({
                 method: "POST",
-                url: "http://157.230.12.110:8080/api/reservations/" + id + '/delete',
+                url: "localhost:8080/api/reservations/" + id + '/delete',
                 data: {},
                 config: {
                     headers: {
@@ -221,7 +221,7 @@ export default {
             this.roomId = null;
             axios({
                 method: "POST",
-                url: "http://157.230.12.110:8080/api/reservations/code/" + this.code,
+                url: "localhost:8080/api/reservations/code/" + this.code,
                 data: {},
                 config: {
                     headers: {
@@ -246,7 +246,7 @@ export default {
                     id = reservation.billId;
                 }
             });
-            axios.get("http://157.230.12.110:8080/api/bills/" + id)
+            axios.get("localhost:8080/api/bills/" + id)
             .then( response => {
                 this.bill = response.data;
             })
