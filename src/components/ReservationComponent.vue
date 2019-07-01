@@ -430,6 +430,7 @@ function makeid(length) {
     margin-top: 1vh;
 }
 .postRoomsInfo {
+    margin-top: 0;
     background-color: #F5F7FA;
     color: #909399;
     border: 1px solid #ebeef5;

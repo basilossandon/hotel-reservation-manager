@@ -5,7 +5,6 @@
         <el-menu-item index="2">Registro</el-menu-item>
         <el-menu-item index="3">Servicios</el-menu-item>
         <el-menu-item index="4">Finalizar</el-menu-item>
-        <el-menu-item index="5">Ayuda</el-menu-item>
     </el-menu>
 </div>
 </template>
@@ -15,7 +14,7 @@ export default {
     name: 'NavbarComponent',
     data() {
         return {
-            activeIndex: '3',
+            activeIndex: '1',
         };
     },
     methods: {

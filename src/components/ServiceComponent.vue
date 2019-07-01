@@ -4,7 +4,7 @@
             <el-col :span="8">
                 <el-card class="card-box reservation-box">
                     <div slot="header" class="clearfix">
-                        <span>Búsqueda reserva</span>
+                        <span>Búsqueda habitación</span>
                     </div>
                     <el-form label-position="right" label-width="100px" :inline="true">
                         <el-form-item label="Habitación" class="room-selector">
@@ -44,10 +44,10 @@
                                                 Cliente: {{reservationSearched.checkInName}}
                                             </div>
                                             <div class="room-info__detail">
-                                                Inicio: {{reservationSearched.start}}
+                                                Inicio: {{format(reservationSearched.start)}}
                                             </div>
                                             <div class="room-info__detail">
-                                                Término: {{reservationSearched.end}}
+                                                Término: {{format(reservationSearched.end)}}
                                             </div>
                                             <div class="room-info__detail">
                                                 <span>Huéspedes Registrados:</span>
@@ -105,23 +105,29 @@
                             <el-col :span="11" :offset="1">
                                 <div class="summary">
                                     <el-main>
-                                        <div>
+                                        <div class="services-title">
                                             Sevicios solicitados:
                                         </div>
-                                        <ul class="services-list">
-                                            <li v-for="(id, index) in postServicesUnique" :key="index">
-                                                <span>
-                                                    {{getService(id)}}
-                                                </span>
-                                                <span>
-                                                    x{{postServicesAmounts[index]}}
-                                                </span>
-                                            </li>
-                                        </ul>
+                                        <div class="services-list">
+                                            <div v-for="(id, index) in postServicesUnique" :key="index" class="service-list__item"> 
+                                                <el-row>
+                                                    <el-col :span="14"> {{getService(id)}}</el-col>
+                                                    <el-col :span="4">
+                                                        (x{{postServicesAmounts[index]}})
+                                                    </el-col>
+                                                    <el-col :span="6">
+                                                        <el-button icon="el-icon-delete" type="text" class="delete-button" @click="removeService(id)">Borrar</el-button>
+                                                    </el-col>
+                                                </el-row>
+                                            </div>
+                                            <div class="total-price">
+                                                Total: <span>{{total}} PEN</span>
+                                            </div>
+                                        </div>
                                     </el-main>
                                 </div>
                                 <div class="post-button">
-                                    <el-button type="success" :disabled="postServices.length == 0" size="mini" @click="postServicesToRoom()">Confirmar Solicitud</el-button>
+                                    <el-button type="success" :disabled="postServices.length == 0" size="mini" @click="updateBill()">Confirmar Solicitud</el-button>
                                 </div>
                             </el-col>
                         </el-row>
@@ -146,6 +152,7 @@ export default {
             services: [],
             currentRow: null,
             search: '',
+            bill: null,
             labels: [
                 'Sopas y cremas',
                 'Entradas',
@@ -168,7 +175,9 @@ export default {
             showButtonService: false,
             showForm: false,
 
+            total: 0,
             postServices: [],
+
         }
     },
     created() {
@@ -261,37 +270,73 @@ export default {
         },
         addServiceToList(id) {
             this.postServices.push(id);
+            this.total += this.services[id - this.services[0].id].price;
+
         },
-        handleAlertClose(room) {
-            let index = this.postRooms.indexOf(room);
-            this.postRooms.splice( index, 1 );
-            this.postDates.splice( index, 1 );
+        removeService(id) {
+            this.total -= this.services[id - this.services[0].id].price;
+            this.postServices.splice(this.postServices.indexOf(id), 1);
         },
         getService(id) {
             let first = this.services[0].id;
             return this.services[id - first].name;
         },
-        postServicesToRoom() {
-            var member = this.reservationSearched.members[0];
-            this.postServices.forEach(id => {
-                axios({
-                    method: "POST",
-                    url: "http://157.230.12.110:8080/api/reservations/" + this.reservationSearched.id + '/addService/' + id,
-                    data: {},
-                    config: {
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    }
-                })
-                .then( response => {
-                    console.log(response.data);
-                })
-                .catch( error => {
-                    console.log(error.message);
-                })
-                
+        updateBill() {
+            axios.get('http://157.230.12.110:8080/api/bills/' +  this.reservationSearched.billId)
+            .then(response => {
+                this.bill = response.data;
+                this.postServicesToRoom();
+            })
+            .catch( error => {
+                this.$notify.error({
+                    title: "No se ha podido solicitar los servicios.",
+                    message: error.message,
+                });
             });
+                
+        },
+
+        postServicesToRoom() {
+            if (this.bill.serviceString == null) {
+                this.bill.serviceString = '';
+            }
+            else {
+                this.bill.serviceString += ';';
+            }
+            axios({
+                method: "POST",
+                url: "http://157.230.12.110:8080/api/reservations/" + this.reservationSearched.id + '/addService',
+                data: {
+                    serviceString:  this.bill.serviceString + this.postServices.join(";")
+                },
+                config: {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            })
+            .then( response => {
+                this.search = '';
+                this.reservationSearched = null;
+                this.total = 0;
+                this.postServices = [];
+                this.showForm = false;
+                this.$notify({
+                    title: "Servicios solicitados",
+                    message: 'Los servicios a la habitacion han sido solicitados correctamente.',
+                    type: 'success'
+                });
+            })
+            .catch( error => {
+                this.$notify.error({
+                    title: "No se ha podido solicitar los servicios.",
+                    message: error.message,
+                });
+            });
+        },
+
+        format(date) {
+            return moment(date.split('T')[0]).format('dddd DD MMMM');
         }
     }
 }
@@ -354,14 +399,33 @@ export default {
     border: 1px solid #ebeef5;
     border-radius: 6px;
     font-size: 14px;
-    height: 32vh;
+    /* height: 32vh; */
 }
 .services-list {
-    height: 23vh;
-    overflow-y: scroll;
+    /* height: 23vh; */
+    /* overflow-y: scroll; */
 }
 .post-button {
     margin-top: 2vh;
     float: right;
+}
+.services-title {
+    font-weight: bold;
+    margin-bottom: 2vh;
+}
+.service-list__item {
+    margin-bottom: 0.6vh;
+}
+.delete-button {
+    padding: 0;
+    color: #F56C6C;
+}
+.total-price {
+    font-weight: bold;
+    margin-top: 2vh;
+    float: right;
+}
+.total-price > span {
+    color: #67C23A;
 }
 </style>

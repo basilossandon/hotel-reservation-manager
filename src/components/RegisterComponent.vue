@@ -73,11 +73,7 @@
                 <el-button class="reservationButton" type="primary" plain size="small" @click="addRoom()" icon="el-icon-circle-plus" :disabled="roomId == null">Añadir Habitación</el-button>
                 <el-button class="reservationButton" type="success" size="small" @click="postReservation()" icon="el-icon-check" :disabled="postRooms.length == 0">Confirmar reserva</el-button>
               </el-col>
-
-
-
-
-
+              
               <el-col v-if="!switchOn">
                 <div class="postRoomsInfo">
                     <el-main>
@@ -405,8 +401,6 @@ export default {
             second: '',
             third: ''
           };
-
-          this.code = null;
 
           this.documents = {
             first: '',
