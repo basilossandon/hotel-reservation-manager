@@ -178,9 +178,9 @@ import ReservationComponent from './ReservationComponent.vue'
         this.updateDictionary();
       },
       updateRackData() {
-        axios.get('localhost:8080/api/rooms').then(response => {
+        axios.get('http://158.170.35.185/:8080/api/rooms').then(response => {
           this.rooms = response.data
-          axios.get('localhost:8080/api/reservations/')
+          axios.get('http://158.170.35.185/:8080/api/reservations/')
           .then(response => {
             this.reservations = response.data;
             this.updateDictionary();
