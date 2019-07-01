@@ -177,7 +177,8 @@
                                       </el-select>
                                     </el-form-item>
                                     <el-form-item label="Edad">
-                                      <el-input :disabled="!showConfirm" v-model="ages.first" size="mini"></el-input>
+                                      <!-- <el-input :disabled="!showConfirm" v-model="ages.first" size="mini"></el-input> -->
+                                      <el-input-number :disabled="!showConfirm" v-model="ages.first" :min="1" :max="100"></el-input-number>
                                     </el-form-item>
                                     </el-col>
                                   </el-row>
@@ -207,7 +208,8 @@
                                       </el-select>
                                     </el-form-item>
                                     <el-form-item label="Edad">
-                                      <el-input :disabled="!showConfirm" v-model="ages.second" size="mini"></el-input>
+                                      <!-- <el-input :disabled="!showConfirm" v-model="ages.second" size="mini"></el-input> -->
+                                       <el-input-number :disabled="!showConfirm" v-model="ages.second" :min="1" :max="100"></el-input-number>
                                     </el-form-item>
                                     </el-col>
                                   </el-row>
@@ -236,7 +238,8 @@
                                       </el-select>
                                     </el-form-item>
                                     <el-form-item label="Edad">
-                                      <el-input :disabled="!showConfirm" v-model="ages.third" size="mini"></el-input>
+                                      <!-- <el-input :disabled="!showConfirm" v-model="ages.third" size="mini"></el-input> -->
+                                       <el-input-number :disabled="!showConfirm" v-model="ages.third" :min="1" :max="100"></el-input-number>
                                     </el-form-item>
                                     </el-col>
                                   </el-row>
@@ -298,7 +301,7 @@ export default {
       postRooms: [],
       postDates: [],
       codeReservations: [],
-
+      checkInputError: 'Debe ingresar los datos personales de todos los huéspedes.',
       reservationsNeeded: -1,
 
       code: '',
@@ -563,12 +566,25 @@ export default {
         this.formatReservations();
       });
     },
+    // && Number.isInteger(this.ages.first)
     checkMemberInputs(capacity) {
-      if (this.names.first && this.documents.first && this.countries.first && this.ages.first && Number.isInteger(this.age.first)) {
+      if (this.names.first && this.documents.first && this.countries.first && this.ages.first) {
+        if (!Number.isInteger(this.ages.first)) {
+          this.checkInputError = 'Debe ingresar un dato numérico para la edad.'
+          return false;
+        }
         if (capacity > 1) {
-          if (this.names.second && this.documents.second && this.countries.second && this.ages.second && Number.isInteger(this.age.second)) {
+          if (this.names.second && this.documents.second && this.countries.second && this.ages.second) {
+            if (!Number.isInteger(this.ages.second)) {
+              this.checkInputError = 'Debe ingresar un dato numérico para la edad.'
+              return false;
+            }
             if (capacity > 2) {
-              if (this.names.third && this.documents.third && this.countries.third && this.ages.third && Number.isInteger(this.age.third)) {
+              if (this.names.third && this.documents.third && this.countries.third && this.ages.third) {
+                if (!Number.isInteger(this.ages.third)) {
+                  this.checkInputError = 'Debe ingresar un dato numérico para la edad.'
+                  return false;
+                }
                 return true;
               }
               else {
@@ -628,7 +644,7 @@ export default {
       else {
         this.$message({
             showClose: true,
-            message: 'Debe ingresar los datos personales de todos los huéspedes.',
+            message: this.checkInputError,
             type: 'error'
         });
       }
@@ -898,5 +914,9 @@ export default {
 }
 .reservationInfo__description {
     margin-bottom: 1em;
+}
+.el-input-number {
+  width: auto;
+  line-height: 30px;
 }
 </style>
