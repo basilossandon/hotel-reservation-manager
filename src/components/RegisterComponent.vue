@@ -564,11 +564,11 @@ export default {
       });
     },
     checkMemberInputs(capacity) {
-      if (this.names.first && this.documents.first && this.countries.first && this.ages.first) {
+      if (this.names.first && this.documents.first && this.countries.first && this.ages.first && Number.isInteger(this.age.first)) {
         if (capacity > 1) {
-          if (this.names.second && this.documents.second && this.countries.second && this.ages.second) {
+          if (this.names.second && this.documents.second && this.countries.second && this.ages.second && Number.isInteger(this.age.second)) {
             if (capacity > 2) {
-              if (this.names.third && this.documents.third && this.countries.third && this.ages.third) {
+              if (this.names.third && this.documents.third && this.countries.third && this.ages.third && Number.isInteger(this.age.third)) {
                 return true;
               }
               else {
