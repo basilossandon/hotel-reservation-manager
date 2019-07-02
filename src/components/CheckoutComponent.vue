@@ -171,9 +171,9 @@ export default {
         }
     },
     created() {
-        axios.get('158.170.35.185:80/api/rooms').then(response => {
+        axios.get('158.170.35.185/api/rooms').then(response => {
             this.rooms = response.data;
-            axios.get('158.170.35.185:80/api/services').then(response => {
+            axios.get('158.170.35.185/api/services').then(response => {
                 this.services = _.orderBy(response.data, ['id'], ['asc']);
             });
         });
@@ -189,7 +189,7 @@ export default {
 
             axios({
                 method: "POST",
-                url: "158.170.35.185:80/api/reservations/" + id + '/delete',
+                url: "158.170.35.185/api/reservations/" + id + '/delete',
                 data: {},
                 config: {
                     headers: {
@@ -221,7 +221,7 @@ export default {
             this.roomId = null;
             axios({
                 method: "POST",
-                url: "158.170.35.185:80/api/reservations/code/" + this.code,
+                url: "158.170.35.185/api/reservations/code/" + this.code,
                 data: {},
                 config: {
                     headers: {
@@ -246,7 +246,7 @@ export default {
                     id = reservation.billId;
                 }
             });
-            axios.get("158.170.35.185:80/api/bills/" + id)
+            axios.get("158.170.35.185/api/bills/" + id)
             .then( response => {
                 this.bill = response.data;
             })

@@ -181,15 +181,15 @@ export default {
         }
     },
     created() {
-        axios.get('158.170.35.185:80/api/rooms')
+        axios.get('158.170.35.185/api/rooms')
         .then(response => {
             this.rooms = response.data;
             this.list = this.rooms.map(item => {
                 return { value: item.id, label: item.id };
             });
-            axios.get('158.170.35.185:80/api/reservations/')
+            axios.get('158.170.35.185/api/reservations/')
             .then(response => {
-                axios.get('158.170.35.185:80/api/services/')
+                axios.get('158.170.35.185/api/services/')
                 .then(response => {
                     this.services = _.orderBy(response.data, ['id'], ['asc']);
                 });
@@ -282,7 +282,7 @@ export default {
             return this.services[id - first].name;
         },
         updateBill() {
-            axios.get('158.170.35.185:80/api/bills/' +  this.reservationSearched.billId)
+            axios.get('158.170.35.185/api/bills/' +  this.reservationSearched.billId)
             .then(response => {
                 this.bill = response.data;
                 this.postServicesToRoom();
@@ -305,7 +305,7 @@ export default {
             }
             axios({
                 method: "POST",
-                url: "158.170.35.185:80/api/reservations/" + this.reservationSearched.id + '/addService',
+                url: "158.170.35.185/api/reservations/" + this.reservationSearched.id + '/addService',
                 data: {
                     serviceString:  this.bill.serviceString + this.postServices.join(";")
                 },

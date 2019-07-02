@@ -359,9 +359,9 @@ export default {
     };
   },
   mounted() {
-    axios.get('158.170.35.185:80/api/rooms').then(response => {
+    axios.get('158.170.35.185/api/rooms').then(response => {
       this.rooms = response.data
-      axios.get('158.170.35.185:80/api/reservations/')
+      axios.get('158.170.35.185/api/reservations/')
       .then(response => {
         this.reservations = _.reverse(response.data);
         this.updateDictionary();
@@ -559,7 +559,7 @@ export default {
       });
     },
     updateReservations() {
-      axios.get('158.170.35.185:80/api/reservations/')
+      axios.get('158.170.35.185/api/reservations/')
       .then(response => {
         this.reservations = _.reverse(response.data);
         this.updateDictionary();
@@ -620,7 +620,7 @@ export default {
           var code = this.makeid(8);
           axios({
             method: "POST",
-            url: "158.170.35.185:80/api/members",
+            url: "158.170.35.185/api/members",
             data: {
               age: ages[i],
               country: countries[i],
@@ -688,7 +688,7 @@ export default {
     searchReservations() {
       axios({
           method: "POST",
-          url: "158.170.35.185:80/api/reservations/code/" + this.code,
+          url: "158.170.35.185/api/reservations/code/" + this.code,
           data: {},
           config: {
             headers: {
@@ -774,7 +774,7 @@ export default {
                 let end = moment(this.postDates[i][1]);
                 axios({
                     method: "POST",
-                    url: "158.170.35.185:80/api/reservations/",
+                    url: "158.170.35.185/api/reservations/",
                     data: {
                         start: start,
                         end: end,
